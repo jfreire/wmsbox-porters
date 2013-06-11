@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.wmsbox</groupId>
+		<artifactId>wmsbox-porters</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<groupId>com.wmsbox.porters.sample</groupId>
+	<artifactId>wmsbox-porters-sample</artifactId>
+	<name>wmsbox-porters-sample</name>
+	<packaging>pom</packaging>
+	<url>http://maven.apache.org</url>
+	<modules>
+		<module>wmsbox-porters-sample-webapp</module>
+    <module>wmsbox-porters-sample-model</module>
+    <module>wmsbox-porters-sample-srv</module>
+  </modules>
+</project>
