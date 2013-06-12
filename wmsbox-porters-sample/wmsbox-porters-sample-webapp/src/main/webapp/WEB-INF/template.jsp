@@ -42,7 +42,7 @@
             </c:if>
             <c:if test="${sessionScope.porter != null && sessionScope.task == null}">
                 <form method="post">
-                    <c:if test="error != null">
+                    <c:if test="${error != null}">
                         <div class="error">${error}</div>
                     </c:if>
                     <ul id="operations">
@@ -55,23 +55,23 @@
             </c:if>
             <c:if test="${sessionScope.task != null}">
                 <div id="info">
-                    <c:forEach var="info" items="${infos}">
+                    <c:forEach var="info" items="${sessionScope.task.messages}">
                         <div class="blockInfo">${info}</div>
                     </c:forEach>
                 </div>
                 <form method="post">
-                    <c:if test="error != null">
+                    <c:if test="${error != null}">
                         <div class="error">${error}</div>
                     </c:if>
-                    <c:if test="input != null">
-                        <label for="input">${input.label}</label>
-                        <input name="input" autofocus="true" value="${input.value}"/>
+                    <c:if test="${inputLabel != null}">
+                        <label for="input">${inputLabel}</label>
+                        <input name="input" autofocus="true" value="${inputDefaultValue}"/>
                     </c:if>
                     <div class="buttons">
                         <c:forEach var="button" items="${buttons}">
-                            <button name="button" value="${button.key}">${button.label}</button>
+                            <button name="actionKey" value="${button}">${button}</button>
                         </c:forEach>
-                        <button name="button" value="cancel">Cancelar</button>
+                        <button name="actionKey" value="cancel">Cancelar</button>
                     </div>
                 </form>
             </c:if>

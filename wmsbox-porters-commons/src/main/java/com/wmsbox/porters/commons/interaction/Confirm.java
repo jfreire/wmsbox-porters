@@ -9,4 +9,8 @@ public class Confirm extends Message implements Action {
 	public Confirm(String key, Serializable[] params) {
 		super(key, params);
 	}
+	
+	public String toString() {
+		return "Confirm." + super.toString();
+	}
 }

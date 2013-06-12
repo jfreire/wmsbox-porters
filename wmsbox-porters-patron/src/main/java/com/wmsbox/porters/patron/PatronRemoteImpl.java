@@ -30,9 +30,11 @@ public class PatronRemoteImpl implements PatronRemote {
 		return this.patron.getTaskTypes();
 	}
 
-	public void porterIteracts(Task task) {
+	public Task porterIteracts(Task task) {
 		TaskThread taskThread = this.tasks.get(task.getId());
 		taskThread.interactReturn(task);
+		
+		return task;
 	}
 
 	public Task porterRequestTask(String code, String porter) {
@@ -56,11 +58,16 @@ public class PatronRemoteImpl implements PatronRemote {
 			throw new RuntimeException(e);
 		}
 
-		TaskThread thread = new TaskThread(controller);
+		TaskThread thread = new TaskThread(controller, task);
 		this.tasks.put(task.getId(), thread);
-
+		task.goToProcess();
 		thread.start();
 
 		return task;
+	}
+
+	public void cancel(Task task) throws RemoteException {
+		TaskThread taskThread = this.tasks.get(task.getId());
+		taskThread.cancel();
 	}
 }

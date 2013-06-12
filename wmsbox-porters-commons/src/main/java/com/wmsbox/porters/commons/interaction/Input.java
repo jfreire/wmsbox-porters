@@ -27,4 +27,8 @@ public class Input<T extends Serializable> implements Action {
 	public T getDefaultValue() {
 		return this.defaultValue;
 	}
+	
+	public String toString() {
+		return "Input." + this.key + "(" + this.type + ", " + this.defaultValue + ")";
+	}
 }

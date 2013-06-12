@@ -42,7 +42,7 @@ public class SplitterTaskController extends TaskController {
 			String containerLabel = input(String.class, "container");
 			container = findContainer(containerLabel);
 
-			if (container != null) {
+			if (container == null) {
 				error("container.notFound", containerLabel);
 			}
 		}
@@ -55,7 +55,7 @@ public class SplitterTaskController extends TaskController {
 		int defaultUnits = Math.min(totalUnits, garmentsPerMeter);
 
 		while (units == null) {
-			int enteredUnits = input(Integer.class, "units", defaultUnits);;
+			int enteredUnits = input(Integer.class, "units", defaultUnits);
 
 			if (enteredUnits > garmentsPerMeter * 2) {
 				if (confirm("tooMuch.units", enteredUnits)) {

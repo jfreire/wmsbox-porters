@@ -1,6 +1,8 @@
 package com.wmsbox.porters.overseer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +13,8 @@ import javax.servlet.http.HttpSession;
 import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.Task;
 import com.wmsbox.porters.commons.TaskTypeFormat;
+import com.wmsbox.porters.commons.interaction.Action;
+import com.wmsbox.porters.commons.interaction.Input;
 
 public class OverseerServlet extends HttpServlet {
 
@@ -44,18 +48,54 @@ public class OverseerServlet extends HttpServlet {
 					}
 				}
 
-				session.setAttribute("task", task);
+				prepareView(request, task);
 			} else {
 				String actionKey = request.getParameter("actionKey");
+				log("actionKey " + actionKey);
 
 				if (actionKey != null) {
-					task.porterDo(task.action(actionKey), request.getParameter("value"));
-					patron.porterIteracts(task);
+					if (actionKey.equals("cancel")) {
+						task.cancelByPorter();
+						patron.cancel(task);
+						session.removeAttribute("task");
+						request.setAttribute("taskTypes", patron.getTaskTypes());
+					} else {
+						Action action = task.action(actionKey);
+						task.porterDo(action, action instanceof Input? request.getParameter("input")
+								: null);
+						task = patron.porterIteracts(task);
+						prepareView(request, task);
+					}
 				}
 			}
 		}
 
 		request.getRequestDispatcher("/WEB-INF/template.jsp").forward(request, response);
+	}
+	
+	private void prepareView(HttpServletRequest request, Task task) {
+		System.out.println("--------- " + task);
+		request.getSession().setAttribute("task", task);
+		
+		if (task != null) {
+			if (task.getError() != null) {
+				request.setAttribute("error", task.getError().getKey());
+			}
+			
+			List<String> buttons = new ArrayList<String>();
+			
+			for (Action action : task.getPossibleActions()) {
+				if (action instanceof Input) {
+					request.setAttribute("inputLabel", action.getKey());
+					request.setAttribute("inputDefaultValue", ((Input<?>) action).getDefaultValue());
+					buttons.add("inputOk");
+				} else {
+					buttons.add(action.getKey());
+				}
+			}
+			
+			request.setAttribute("buttons", buttons);
+		}
 	}
 
 	private String validated(HttpServletRequest request) {

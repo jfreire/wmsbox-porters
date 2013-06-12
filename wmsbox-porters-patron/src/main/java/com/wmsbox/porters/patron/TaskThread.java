@@ -11,14 +11,16 @@ class TaskThread implements Runnable {
 	private Task task;
 	private Thread thread;
 
-	public TaskThread(TaskController controller) {
+	public TaskThread(TaskController controller, Task task) {
 		this.controller = controller;
+		this.task = task;
 		controller.setTaskThread(this);
 	}
 
 	public void start() {
 		this.thread = new Thread(this);
 		this.thread.start();
+		this.connectionLock.readyAndWaitToReady(this.taskLock);
 	}
 
 	public Task getTask() {
@@ -26,10 +28,12 @@ class TaskThread implements Runnable {
 	}
 
 	public void interactReturn(Task task) {
+		System.out.println("interactReturn " + task);
 		this.task = task;
 		this.connectionLock.readyAndWaitToReady(this.taskLock);
+		System.out.println("interactReturn End " + task);
 	}
-
+	
 	public void run() {
 		try {
 			this.controller.process();
@@ -43,6 +47,7 @@ class TaskThread implements Runnable {
 	}
 
 	public void requestIteration() throws InterruptedException {
+		System.out.println("requestIteration " + this.task);
 		this.taskLock.readyAndWaitToReady(this.connectionLock);
 	}
 }

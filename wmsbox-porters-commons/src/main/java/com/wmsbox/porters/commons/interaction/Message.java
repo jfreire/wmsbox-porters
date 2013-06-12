@@ -1,6 +1,7 @@
 package com.wmsbox.porters.commons.interaction;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Message implements Serializable {
 
@@ -20,5 +21,9 @@ public class Message implements Serializable {
 
 	public Serializable[] getParams() {
 		return this.params;
+	}
+	
+	public String toString() {
+		return this.key + Arrays.toString(this.params);
 	}
 }

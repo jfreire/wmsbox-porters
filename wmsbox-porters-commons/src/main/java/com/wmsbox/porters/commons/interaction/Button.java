@@ -13,4 +13,8 @@ public class Button implements Action {
 	public String getKey() {
 		return this.key;
 	}
+	
+	public String toString() {
+		return "Button." + this.key;
+	}
 }

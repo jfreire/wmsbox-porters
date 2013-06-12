@@ -2,6 +2,7 @@ package com.wmsbox.porters.commons;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.wmsbox.porters.commons.interaction.Action;
@@ -141,5 +142,10 @@ public class Task extends Base {
 		if (this.state != TaskState.PROCESSING) {
 			throw new IllegalStateException();
 		}
+	}
+	
+	public String toString() {
+		return "Task[" + this.id + ", " + this.type + ", " + Arrays.toString(this.possibleActions)
+				+ ", " + this.error + ", " + this.messages + "]";
 	}
 }
