@@ -23,7 +23,7 @@ public class SplitterTaskController extends TaskController {
 
 	@Override
 	public TaskController process() throws InterruptedException {
-		Container container = readContainerOrigin();
+		Container container = readContainerSource();
 		int totalUnits = container.getUnits();
 		info(1, "container.content", container.getSku(), totalUnits);
 
@@ -35,11 +35,11 @@ public class SplitterTaskController extends TaskController {
 		return new SplitterTaskController(originLabel);
 	}
 
-	private Container readContainerOrigin() throws InterruptedException {
+	private Container readContainerSource() throws InterruptedException {
 		Container container = null;
 
 		while (container == null) {
-			String containerLabel = input(String.class, "container");
+			String containerLabel = inputString("container");
 			container = findContainer(containerLabel);
 
 			if (container == null) {
@@ -55,7 +55,7 @@ public class SplitterTaskController extends TaskController {
 		int defaultUnits = Math.min(totalUnits, garmentsPerMeter);
 
 		while (units == null) {
-			int enteredUnits = input(Integer.class, "units", defaultUnits);
+			int enteredUnits = inputInteger("units", defaultUnits);
 
 			if (enteredUnits > garmentsPerMeter * 2) {
 				if (confirm("tooMuch.units", enteredUnits)) {
@@ -71,7 +71,7 @@ public class SplitterTaskController extends TaskController {
 		String label = null;
 
 		while (label != null) {
-			String currentLabel = input(String.class, "target");
+			String currentLabel = inputString("target");
 
 			if (existsContainer(currentLabel)) {
 				error("exists", currentLabel);
@@ -84,15 +84,33 @@ public class SplitterTaskController extends TaskController {
 	}
 
 	private boolean existsContainer(String label) {
-		return true;
+		try {
+			Long.parseLong(label);
+
+			return !label.endsWith("8") && !label.endsWith("9");
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	private Container findContainer(String label) {
-		return null;
+		try {
+			long code = Long.parseLong(label);
+
+
+			if (label.endsWith("8") || label.endsWith("9")) {
+				return new Container(label, 12341231200l + (int) ((code / 1000) % 100),
+						(int) ((code / 10) % 100));
+			}
+
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private int garmentsPerBar(long sku) {
-		return 0;
+		return 50;
 	}
 
 	private void transfer(Container container, String targetLabel, int units) {

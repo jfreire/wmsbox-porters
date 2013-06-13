@@ -14,7 +14,7 @@ public class Task extends Base {
 
 	private final long id;
 	private final List<Message> messages;
-	private final String porter;
+	private final Context context;
 	private final TaskTypeCode type;
 	private TaskState state;
 	private Message error;
@@ -23,10 +23,10 @@ public class Task extends Base {
 	private Serializable porderDoValue;
 	private long lastPorterActivityTime;
 
-	public Task(long id, TaskTypeCode type, String porter) {
+	public Task(long id, TaskTypeCode type, Context context) {
 		this.id = id;
 		this.type = type;
-		this.porter = porter;
+		this.context = context;
 		this.state = TaskState.WAITING;
 		this.messages = new ArrayList<Message>();
 	}
@@ -35,8 +35,8 @@ public class Task extends Base {
 		return this.id;
 	}
 
-	public String getPorter() {
-		return this.porter;
+	public Context getContext() {
+		return this.context;
 	}
 
 	public long getLastPorterActivityTime() {
@@ -143,7 +143,8 @@ public class Task extends Base {
 			throw new IllegalStateException();
 		}
 	}
-	
+
+	@Override
 	public String toString() {
 		return "Task[" + this.id + ", " + this.type + ", " + Arrays.toString(this.possibleActions)
 				+ ", " + this.error + ", " + this.messages + "]";

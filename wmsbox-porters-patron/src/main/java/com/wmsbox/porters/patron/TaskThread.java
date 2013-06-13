@@ -14,7 +14,7 @@ class TaskThread implements Runnable {
 	public TaskThread(TaskController controller, Task task) {
 		this.controller = controller;
 		this.task = task;
-		controller.setTaskThread(this);
+		controller.init(this);
 	}
 
 	public void start() {
@@ -33,7 +33,7 @@ class TaskThread implements Runnable {
 		this.connectionLock.readyAndWaitToReady(this.taskLock);
 		System.out.println("interactReturn End " + task);
 	}
-	
+
 	public void run() {
 		try {
 			this.controller.process();

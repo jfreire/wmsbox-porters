@@ -1,8 +1,11 @@
 package com.wmsbox.porters.commons.interaction;
 
-import java.io.Serializable;
 
-public interface Action extends Serializable {
+public abstract class Action extends TaskItem {
 
-	String getKey();
+	private static final long serialVersionUID = -887159849161365110L;
+
+	public Action(String key, String text) {
+		super(key, text);
+	}
 }

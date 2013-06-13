@@ -11,5 +11,5 @@ public interface OverseerRemote extends Remote {
 
 	void request(TaskRequest request) throws RemoteException;
 
-	Task createTask(TaskTypeCode type, String porter) throws RemoteException;
+	Task createTask(TaskTypeCode type, Context context) throws RemoteException;
 }

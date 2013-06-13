@@ -1,20 +1,15 @@
 package com.wmsbox.porters.commons.interaction;
 
-public class Button implements Action {
+public class Button extends Action {
 
 	private static final long serialVersionUID = -6754711386787226293L;
 
-	private final String key;
-
-	public Button(String key) {
-		this.key = key;
+	public Button(String key, String text) {
+		super(key, text);
 	}
 
-	public String getKey() {
-		return this.key;
-	}
-	
+	@Override
 	public String toString() {
-		return "Button." + this.key;
+		return "Button." + getKey();
 	}
 }

@@ -3,6 +3,7 @@ package com.wmsbox.porters.overseer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,11 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.wmsbox.porters.commons.Context;
 import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.Task;
 import com.wmsbox.porters.commons.TaskTypeFormat;
 import com.wmsbox.porters.commons.interaction.Action;
-import com.wmsbox.porters.commons.interaction.Input;
+import com.wmsbox.porters.commons.interaction.Button;
+import com.wmsbox.porters.commons.interaction.Confirm;
+import com.wmsbox.porters.commons.interaction.InputInteger;
+import com.wmsbox.porters.commons.interaction.InputString;
 
 public class OverseerServlet extends HttpServlet {
 
@@ -23,9 +28,9 @@ public class OverseerServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String porter = validated(request);
+		Context ctx = context(request);
 
-		if (porter != null) {
+		if (ctx != null) {
 			HttpSession session = request.getSession();
 			Task task = (Task) session.getAttribute("task");
 			OverseerServer server = OverseerServer.INSTANCE;
@@ -37,12 +42,12 @@ public class OverseerServlet extends HttpServlet {
 				String taskType = request.getParameter("taskType");
 
 				if (taskType != null) {
-					task = patron.porterRequestTask(TaskTypeFormat.INSTANCE.parse(taskType), porter);
+					task = patron.porterRequestTask(TaskTypeFormat.INSTANCE.parse(taskType), ctx);
 				} else {
 					String code = request.getParameter("code");
 
 					if (code != null) {
-						task = patron.porterRequestTask(code, porter);
+						task = patron.porterRequestTask(code, ctx);
 					} else {
 						request.setAttribute("taskTypes", patron.getTaskTypes());
 					}
@@ -61,7 +66,7 @@ public class OverseerServlet extends HttpServlet {
 						request.setAttribute("taskTypes", patron.getTaskTypes());
 					} else {
 						Action action = task.action(actionKey);
-						task.porterDo(action, action instanceof Input? request.getParameter("input")
+						task.porterDo(action, action instanceof InputString? request.getParameter("input")
 								: null);
 						task = patron.porterIteracts(task);
 						prepareView(request, task);
@@ -72,33 +77,36 @@ public class OverseerServlet extends HttpServlet {
 
 		request.getRequestDispatcher("/WEB-INF/template.jsp").forward(request, response);
 	}
-	
+
 	private void prepareView(HttpServletRequest request, Task task) {
 		System.out.println("--------- " + task);
 		request.getSession().setAttribute("task", task);
-		
+
 		if (task != null) {
 			if (task.getError() != null) {
 				request.setAttribute("error", task.getError().getKey());
 			}
-			
-			List<String> buttons = new ArrayList<String>();
-			
+
+			List<Button> buttons = new ArrayList<Button>();
+
 			for (Action action : task.getPossibleActions()) {
-				if (action instanceof Input) {
-					request.setAttribute("inputLabel", action.getKey());
-					request.setAttribute("inputDefaultValue", ((Input<?>) action).getDefaultValue());
-					buttons.add("inputOk");
+				if (action instanceof InputString) {
+					request.setAttribute("inputLabel", action.getText());
+					request.setAttribute("inputDefaultValue", ((InputString) action).getDefaultValue());
+				} else if (action instanceof InputInteger) {
+					//TODO
+				} else if (action instanceof Confirm) {
+					//TODO
 				} else {
-					buttons.add(action.getKey());
+					buttons.add((Button) action);
 				}
 			}
-			
+
 			request.setAttribute("buttons", buttons);
 		}
 	}
 
-	private String validated(HttpServletRequest request) {
+	private Context context(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		String porter = null;
 
@@ -119,6 +127,6 @@ public class OverseerServlet extends HttpServlet {
 			}
 		}
 
-		return porter;
+		return new Context(porter, Locale.getDefault());
 	}
 }

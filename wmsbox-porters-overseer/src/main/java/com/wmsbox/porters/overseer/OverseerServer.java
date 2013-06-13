@@ -2,6 +2,7 @@ package com.wmsbox.porters.overseer;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.wmsbox.porters.commons.Context;
 import com.wmsbox.porters.commons.OverseerRemote;
 import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.Task;
@@ -32,8 +33,8 @@ public class OverseerServer implements OverseerRemote {
 		throw new UnsupportedOperationException();
 	}
 
-	public Task createTask(TaskTypeCode type, String porter) {
-		return new Task(this.ids.getAndIncrement(), type, porter);
+	public Task createTask(TaskTypeCode type, Context context) {
+		return new Task(this.ids.getAndIncrement(), type, context);
 	}
 }
 

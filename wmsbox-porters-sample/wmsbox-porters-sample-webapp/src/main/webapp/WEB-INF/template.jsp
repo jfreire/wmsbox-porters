@@ -69,6 +69,7 @@
                     <c:if test="${inputLabel != null}">
                         <label for="input">${inputLabel}</label>
                         <input name="input" autofocus="true" value="${inputDefaultValue}"/>
+                        <button name="actionKey" value="inputOk">&gt;</button>
                     </c:if>
                     <div class="buttons">
                         <c:forEach var="button" items="${buttons}">

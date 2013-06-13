@@ -12,9 +12,9 @@ public interface PatronRemote extends Remote {
 
 	Task porterIteracts(Task task) throws RemoteException;
 
-	Task porterRequestTask(String code, String porter) throws RemoteException;
+	Task porterRequestTask(String code, Context ctx) throws RemoteException;
 
-	Task porterRequestTask(TaskTypeCode type, String porter) throws RemoteException;
-	
+	Task porterRequestTask(TaskTypeCode type, Context ctx) throws RemoteException;
+
 	void cancel(Task task) throws RemoteException;
 }

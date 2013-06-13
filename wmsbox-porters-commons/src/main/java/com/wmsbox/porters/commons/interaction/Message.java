@@ -1,29 +1,16 @@
 package com.wmsbox.porters.commons.interaction;
 
-import java.io.Serializable;
-import java.util.Arrays;
 
-public class Message implements Serializable {
+public class Message extends TaskItem {
 
-	private static final long serialVersionUID = -4433479638075159900L;
+	private static final long serialVersionUID = -8526618220797859655L;
 
-	private final String key;
-	private final Serializable[] params;
-
-	public Message(String key, Serializable[] params) {
-		this.key = key;
-		this.params = params;
+	public Message(String key, String text) {
+		super(key, text);
 	}
 
-	public String getKey() {
-		return this.key;
-	}
-
-	public Serializable[] getParams() {
-		return this.params;
-	}
-	
+	@Override
 	public String toString() {
-		return this.key + Arrays.toString(this.params);
+		return "Message." + getKey();
 	}
 }

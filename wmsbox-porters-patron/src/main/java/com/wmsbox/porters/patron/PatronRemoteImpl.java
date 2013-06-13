@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.wmsbox.porters.commons.Context;
 import com.wmsbox.porters.commons.OverseerRemote;
 import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.Task;
@@ -15,7 +16,6 @@ public class PatronRemoteImpl implements PatronRemote {
 	private final Patron patron;
 	private final OverseerRemote overseer;
 	private final Map<Long, TaskThread> tasks = new HashMap<Long, TaskThread>();
-
 
 	public PatronRemoteImpl(Patron patron, OverseerRemote overseer) {
 		this.patron = patron;
@@ -33,27 +33,27 @@ public class PatronRemoteImpl implements PatronRemote {
 	public Task porterIteracts(Task task) {
 		TaskThread taskThread = this.tasks.get(task.getId());
 		taskThread.interactReturn(task);
-		
+
 		return task;
 	}
 
-	public Task porterRequestTask(String code, String porter) {
+	public Task porterRequestTask(String code, Context ctx) {
 		TaskController controller = this.patron.porterRequestTask(code);
 
-		return startTask(controller, porter);
+		return startTask(controller, ctx);
 	}
 
-	public Task porterRequestTask(TaskTypeCode type, String porter) {
+	public Task porterRequestTask(TaskTypeCode type, Context ctx) {
 		TaskController controller = this.patron.porterRequestTask(type);
 
-		return startTask(controller, porter);
+		return startTask(controller, ctx);
 	}
 
-	private Task startTask(TaskController controller, String porter) {
+	private Task startTask(TaskController controller, Context ctx) {
 		Task task;
 
 		try {
-			task = this.overseer.createTask(controller.getType(), porter);
+			task = this.overseer.createTask(controller.getType(), ctx);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
