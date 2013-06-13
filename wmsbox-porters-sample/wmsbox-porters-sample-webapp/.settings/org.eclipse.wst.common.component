@@ -9,9 +9,6 @@
         <dependent-module archiveName="wmsbox-porters-commons-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/wmsbox-porters-commons/wmsbox-porters-commons">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="wmsbox-porters-sample-model-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/wmsbox-porters-sample-model/wmsbox-porters-sample-model">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module archiveName="wmsbox-codes-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/wmsbox-codes/wmsbox-codes">
             <dependency-type>uses</dependency-type>
         </dependent-module>

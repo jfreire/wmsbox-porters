@@ -21,6 +21,9 @@
                     <c:forEach var="navOption" items="${navOptions}">
                         <li><a href="?nav=${navOption.key}">${navOption.label}</a></li>
                     </c:forEach>
+                    <c:if test="${sessionScope.task != null}">
+                        <li><a href="?nav=cancel">Cancelar</a></li>
+                    </c:if>
                     <li><a href="?nav=logout">Logout</a></li>
                 </c:if>
             </ul>
@@ -71,7 +74,6 @@
                         <c:forEach var="button" items="${buttons}">
                             <button name="actionKey" value="${button}">${button}</button>
                         </c:forEach>
-                        <button name="actionKey" value="cancel">Cancelar</button>
                     </div>
                 </form>
             </c:if>

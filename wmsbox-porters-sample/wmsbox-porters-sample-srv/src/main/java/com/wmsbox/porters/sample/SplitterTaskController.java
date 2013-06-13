@@ -24,7 +24,7 @@ public class SplitterTaskController extends TaskController {
 	@Override
 	public TaskController process() throws InterruptedException {
 		Container container = readContainerOrigin();
-		int totalUnits = container.getTotalUnits();
+		int totalUnits = container.getUnits();
 		info(1, "container.content", container.getSku(), totalUnits);
 
 		int units = readUnits(totalUnits, garmentsPerBar(container.getSku()));
@@ -91,7 +91,7 @@ public class SplitterTaskController extends TaskController {
 		return null;
 	}
 
-	private int garmentsPerBar(int sku) {
+	private int garmentsPerBar(long sku) {
 		return 0;
 	}
 
