@@ -8,26 +8,26 @@ import java.util.List;
 import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Message;
 
-public class Task extends Base {
+public class Operation extends Base {
 
 	private static final long serialVersionUID = -5048824065756146177L;
 
 	private final long id;
 	private final List<Message> messages;
 	private final Context context;
-	private final TaskTypeCode type;
-	private TaskState state;
+	private final OperationType type;
+	private OperationState state;
 	private Message error;
 	private Action[] possibleActions;
 	private Action porterDo;
 	private Serializable porderDoValue;
 	private long lastPorterActivityTime;
 
-	public Task(long id, TaskTypeCode type, Context context) {
+	public Operation(long id, OperationType type, Context context) {
 		this.id = id;
 		this.type = type;
 		this.context = context;
-		this.state = TaskState.WAITING;
+		this.state = OperationState.WAITING;
 		this.messages = new ArrayList<Message>();
 	}
 
@@ -43,7 +43,7 @@ public class Task extends Base {
 		return this.lastPorterActivityTime;
 	}
 
-	public TaskState getState() {
+	public OperationState getState() {
 		return this.state;
 	}
 
@@ -69,7 +69,7 @@ public class Task extends Base {
 		return null;
 	}
 
-	public TaskTypeCode getType() {
+	public OperationType getType() {
 		return type;
 	}
 
@@ -111,7 +111,7 @@ public class Task extends Base {
 
 	public void cancelByPatron() {
 		if (this.state.isLive()) {
-			this.state = TaskState.CANCELED_BY_PATRON;
+			this.state = OperationState.CANCELED_BY_PATRON;
 		} else {
 			throw new IllegalStateException();
 		}
@@ -119,7 +119,7 @@ public class Task extends Base {
 
 	public void cancelByPorter() {
 		if (this.state.isLive()) {
-			this.state = TaskState.CANCELED_BY_PORTER;
+			this.state = OperationState.CANCELED_BY_PORTER;
 		} else {
 			throw new IllegalStateException();
 		}
@@ -127,19 +127,19 @@ public class Task extends Base {
 
 	public void completed() {
 		checkProcessingState();
-		this.state = TaskState.COMPLETED;
+		this.state = OperationState.COMPLETED;
 	}
 
 	public void goToProcess() {
-		if (this.state == TaskState.WAITING) {
-			this.state = TaskState.PROCESSING;
+		if (this.state == OperationState.WAITING) {
+			this.state = OperationState.PROCESSING;
 		} else {
 			throw new IllegalStateException();
 		}
 	}
 
 	private void checkProcessingState() {
-		if (this.state != TaskState.PROCESSING) {
+		if (this.state != OperationState.PROCESSING) {
 			throw new IllegalStateException();
 		}
 	}

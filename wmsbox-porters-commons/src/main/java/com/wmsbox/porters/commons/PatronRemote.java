@@ -8,13 +8,13 @@ public interface PatronRemote extends Remote {
 
 	String getKey() throws RemoteException;
 
-	List<TaskTypeCode> getTaskTypes() throws RemoteException;
+	List<OperationType> getOperationTypes() throws RemoteException;
 
-	Task porterIteracts(Task task) throws RemoteException;
+	Operation porterIteracts(Operation operation) throws RemoteException;
 
-	Task porterRequestTask(String code, Context ctx) throws RemoteException;
+	Operation porterRequestOperation(String code, Context ctx) throws RemoteException;
 
-	Task porterRequestTask(TaskTypeCode type, Context ctx) throws RemoteException;
+	Operation porterRequestOperation(OperationType type, Context ctx) throws RemoteException;
 
-	void cancel(Task task) throws RemoteException;
+	void cancel(Operation operation) throws RemoteException;
 }

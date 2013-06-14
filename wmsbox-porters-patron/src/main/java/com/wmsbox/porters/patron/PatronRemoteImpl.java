@@ -8,14 +8,14 @@ import java.util.Map;
 import com.wmsbox.porters.commons.Context;
 import com.wmsbox.porters.commons.OverseerRemote;
 import com.wmsbox.porters.commons.PatronRemote;
-import com.wmsbox.porters.commons.Task;
-import com.wmsbox.porters.commons.TaskTypeCode;
+import com.wmsbox.porters.commons.Operation;
+import com.wmsbox.porters.commons.OperationType;
 
 public class PatronRemoteImpl implements PatronRemote {
 
 	private final Patron patron;
 	private final OverseerRemote overseer;
-	private final Map<Long, TaskThread> tasks = new HashMap<Long, TaskThread>();
+	private final Map<Long, OperationThread> operations = new HashMap<Long, OperationThread>();
 
 	public PatronRemoteImpl(Patron patron, OverseerRemote overseer) {
 		this.patron = patron;
@@ -26,48 +26,48 @@ public class PatronRemoteImpl implements PatronRemote {
 		return this.patron.getKey();
 	}
 
-	public List<TaskTypeCode> getTaskTypes() {
-		return this.patron.getTaskTypes();
+	public List<OperationType> getOperationTypes() {
+		return this.patron.getOperationTypes();
 	}
 
-	public Task porterIteracts(Task task) {
-		TaskThread taskThread = this.tasks.get(task.getId());
-		taskThread.interactReturn(task);
+	public Operation porterIteracts(Operation operation) {
+		OperationThread taskThread = this.operations.get(operation.getId());
+		taskThread.interactReturn(operation);
 
-		return task;
+		return operation;
 	}
 
-	public Task porterRequestTask(String code, Context ctx) {
-		TaskController controller = this.patron.porterRequestTask(code);
+	public Operation porterRequestOperation(String code, Context ctx) {
+		OperationController controller = this.patron.porterRequestOperation(code);
 
 		return startTask(controller, ctx);
 	}
 
-	public Task porterRequestTask(TaskTypeCode type, Context ctx) {
-		TaskController controller = this.patron.porterRequestTask(type);
+	public Operation porterRequestOperation(OperationType type, Context ctx) {
+		OperationController controller = this.patron.porterRequestOperation(type);
 
 		return startTask(controller, ctx);
 	}
 
-	private Task startTask(TaskController controller, Context ctx) {
-		Task task;
+	private Operation startTask(OperationController controller, Context ctx) {
+		Operation operation;
 
 		try {
-			task = this.overseer.createTask(controller.getType(), ctx);
+			operation = this.overseer.createOperation(controller.getType(), ctx);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 
-		TaskThread thread = new TaskThread(controller, task);
-		this.tasks.put(task.getId(), thread);
-		task.goToProcess();
+		OperationThread thread = new OperationThread(controller, operation);
+		this.operations.put(operation.getId(), thread);
+		operation.goToProcess();
 		thread.start();
 
-		return task;
+		return operation;
 	}
 
-	public void cancel(Task task) throws RemoteException {
-		TaskThread taskThread = this.tasks.get(task.getId());
-		taskThread.cancel();
+	public void cancel(Operation operation) throws RemoteException {
+		OperationThread operationThread = this.operations.get(operation.getId());
+		operationThread.cancel();
 	}
 }

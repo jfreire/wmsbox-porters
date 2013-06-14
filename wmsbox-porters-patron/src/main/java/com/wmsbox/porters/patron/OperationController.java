@@ -3,29 +3,29 @@ package com.wmsbox.porters.patron;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
-import com.wmsbox.porters.commons.Task;
-import com.wmsbox.porters.commons.TaskTypeCode;
+import com.wmsbox.porters.commons.Operation;
+import com.wmsbox.porters.commons.OperationType;
 import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Confirm;
 import com.wmsbox.porters.commons.interaction.InputInteger;
 import com.wmsbox.porters.commons.interaction.InputString;
 import com.wmsbox.porters.commons.interaction.Message;
 
-public abstract class TaskController {
+public abstract class OperationController {
 
-	private final TaskTypeCode type;
-	private TaskThread taskThread;
+	private final OperationType type;
+	private OperationThread operationThread;
 
-	public TaskController(TaskTypeCode type) {
+	public OperationController(OperationType type) {
 		this.type = type;
 	}
 
-	protected final TaskTypeCode getType() {
+	protected final OperationType getType() {
 		return this.type;
 	}
 
-	protected final void init(TaskThread taskThread) {
-		this.taskThread = taskThread;
+	protected final void init(OperationThread operationThread) {
+		this.operationThread = operationThread;
 	}
 
 	/**
@@ -33,7 +33,7 @@ public abstract class TaskController {
 	 * @return La siguiente tarea o null.
 	 * @throws InterruptedException
 	 */
-	public abstract TaskController process() throws InterruptedException;
+	public abstract OperationController process() throws InterruptedException;
 
 	public final String inputString(String key)	throws InterruptedException {
 		return inputString(key, null);
@@ -41,12 +41,12 @@ public abstract class TaskController {
 
 	public final String inputString(String key, String defaultValue)
 			throws InterruptedException {
-		Task task = this.taskThread.getTask();
-		task.request(new InputString(key, text(key), null));
+		Operation operation = this.operationThread.getOperation();
+		operation.request(new InputString(key, text(key), null));
 
-		this.taskThread.requestIteration();
+		this.operationThread.requestIteration();
 
-		return (String) task.getPorderDoValue();
+		return (String) operation.getPorderDoValue();
 	}
 
 	public final Integer inputInteger(String key) throws InterruptedException {
@@ -55,12 +55,12 @@ public abstract class TaskController {
 
 	public final Integer inputInteger(String key, Integer defaultValue)
 			throws InterruptedException {
-		Task task = this.taskThread.getTask();
-		task.request(new InputInteger(key, text(key), defaultValue));
+		Operation operation = this.operationThread.getOperation();
+		operation.request(new InputInteger(key, text(key), defaultValue));
 
-		this.taskThread.requestIteration();
+		this.operationThread.requestIteration();
 
-		return (Integer) task.getPorderDoValue();
+		return (Integer) operation.getPorderDoValue();
 	}
 
 	/**
@@ -70,37 +70,39 @@ public abstract class TaskController {
 	 * @throws InterruptedException
 	 */
 	public final Object choose(Action... actionKeys) throws InterruptedException {
-		Task task = this.taskThread.getTask();
-		task.request(actionKeys);
+		Operation operation = this.operationThread.getOperation();
+		operation.request(actionKeys);
 
-		this.taskThread.requestIteration();
+		this.operationThread.requestIteration();
 
-		return task.getPorderDoValue() != null ? task.getPorderDoValue() : task.getPorterDo();
+		return operation.getPorderDoValue() != null ? operation.getPorderDoValue()
+				: operation.getPorterDo();
 	}
 
 	public final boolean confirm(String key, Object... params) throws InterruptedException {
-		Task task = this.taskThread.getTask();
-		task.request(new Confirm(key, text(key, params)));
+		Operation operation = this.operationThread.getOperation();
+		operation.request(new Confirm(key, text(key, params)));
 
-		this.taskThread.requestIteration();
+		this.operationThread.requestIteration();
 
-		return task.getPorderDoValue() != null ? Boolean.TRUE == task.getPorderDoValue() : false;
+		return operation.getPorderDoValue() != null ? Boolean.TRUE == operation.getPorderDoValue()
+				: false;
 	}
 
 	public final void error(String key, Object... params) {
-		Task task = this.taskThread.getTask();
-		task.error(new Message(key, text(key, params)));
+		Operation operation = this.operationThread.getOperation();
+		operation.error(new Message(key, text(key, params)));
 	}
 
 	public void info(int index, String key, Object... params) {
-		Task task = this.taskThread.getTask();
-		task.info(index, new Message(key, text(key, params)));
+		Operation operation = this.operationThread.getOperation();
+		operation.info(index, new Message(key, text(key, params)));
 	}
 
 	private String text(String key) {
-		Task task = this.taskThread.getTask();
+		Operation operation = this.operationThread.getOperation();
 		ResourceBundle rb = ResourceBundle.getBundle("messages.properties",
-				task.getContext().getLocale());
+				operation.getContext().getLocale());
 
 		String text = rb.getString(this.type + "." + key);
 

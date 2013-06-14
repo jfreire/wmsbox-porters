@@ -1,28 +1,28 @@
 package com.wmsbox.porters.sample;
 
-import com.wmsbox.porters.commons.TaskTypeCode;
-import com.wmsbox.porters.commons.TaskTypeFormat;
-import com.wmsbox.porters.patron.TaskController;
+import com.wmsbox.porters.commons.OperationType;
+import com.wmsbox.porters.commons.OperationTypeFormat;
+import com.wmsbox.porters.patron.OperationController;
 
 
-public class SplitterTaskController extends TaskController {
+public class SplitterOperationController extends OperationController {
 
-	public static final TaskTypeCode CODE = TaskTypeFormat.INSTANCE.create("ASR", "SPL");
+	public static final OperationType CODE = OperationTypeFormat.INSTANCE.create("ASR", "SPL");
 
-	private final String originLabel;
+	private final String sourceLabel;
 
-	public SplitterTaskController() {
+	public SplitterOperationController() {
 		super(CODE);
-		this.originLabel = null;
+		this.sourceLabel = null;
 	}
 
-	public SplitterTaskController(String originLabel) {
+	public SplitterOperationController(String sourceLabel) {
 		super(CODE);
-		this.originLabel = originLabel;
+		this.sourceLabel = sourceLabel;
 	}
 
 	@Override
-	public TaskController process() throws InterruptedException {
+	public OperationController process() throws InterruptedException {
 		Container container = readContainerSource();
 		int totalUnits = container.getUnits();
 		info(1, "container.content", container.getSku(), totalUnits);
@@ -32,11 +32,15 @@ public class SplitterTaskController extends TaskController {
 		String targetLabel = readTargetLabel();
 		transfer(container, targetLabel, units);
 
-		return new SplitterTaskController(originLabel);
+		return new SplitterOperationController(targetLabel);
 	}
 
 	private Container readContainerSource() throws InterruptedException {
 		Container container = null;
+		
+		if (this.sourceLabel != null) {
+			container = findContainer(this.sourceLabel);
+		}
 
 		while (container == null) {
 			String containerLabel = inputString("container");

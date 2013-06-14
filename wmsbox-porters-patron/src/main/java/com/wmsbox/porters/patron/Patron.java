@@ -2,15 +2,15 @@ package com.wmsbox.porters.patron;
 
 import java.util.List;
 
-import com.wmsbox.porters.commons.TaskTypeCode;
+import com.wmsbox.porters.commons.OperationType;
 
 public interface Patron {
 
 	String getKey();
 
-	List<TaskTypeCode> getTaskTypes();
+	List<OperationType> getOperationTypes();
 
-	TaskController porterRequestTask(String code);
+	OperationController porterRequestOperation(String code);
 
-	TaskController porterRequestTask(TaskTypeCode type);
+	OperationController porterRequestOperation(OperationType type);
 }

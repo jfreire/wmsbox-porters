@@ -1,6 +1,6 @@
 package com.wmsbox.porters.commons;
 
-public enum TaskState {
+public enum OperationState {
 
 	WAITING(true),
 	PROCESSING(true),
@@ -10,7 +10,7 @@ public enum TaskState {
 
 	private final boolean live;
 
-	private TaskState(boolean live) {
+	private OperationState(boolean live) {
 		this.live = live;
 	}
 

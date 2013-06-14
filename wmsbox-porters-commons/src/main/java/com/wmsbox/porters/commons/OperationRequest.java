@@ -1,22 +1,22 @@
 package com.wmsbox.porters.commons;
 
 
-public class TaskRequest extends Base {
+public class OperationRequest extends Base {
 
 	private static final long serialVersionUID = 7470255836771314636L;
 
 	private final String patronKey;
-	private final Long patronTaskId;
+	private final Long patronOperationId;
 	private final String type;
 
-	public TaskRequest(String patronKey, long patronTaskId, String type) {
-		this.patronTaskId = patronTaskId;
+	public OperationRequest(String patronKey, long patronOperationId, String type) {
+		this.patronOperationId = patronOperationId;
 		this.type = type;
 		this.patronKey = patronKey;
 	}
 
-	public Long getPatronTaskId() {
-		return this.patronTaskId;
+	public Long getPatronOperationId() {
+		return this.patronOperationId;
 	}
 
 	public String getType() {

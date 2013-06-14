@@ -5,10 +5,10 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.wmsbox.porters.commons.TaskTypeCode;
+import com.wmsbox.porters.commons.OperationType;
 import com.wmsbox.porters.patron.OverseerConnector;
 import com.wmsbox.porters.patron.Patron;
-import com.wmsbox.porters.patron.TaskController;
+import com.wmsbox.porters.patron.OperationController;
 
 public class SamplePatron implements Patron {
 
@@ -16,22 +16,20 @@ public class SamplePatron implements Patron {
 		return "Sample";
 	}
 
-	public List<TaskTypeCode> getTaskTypes() {
-		List<TaskTypeCode> types = new ArrayList<TaskTypeCode>();
+	public List<OperationType> getOperationTypes() {
+		List<OperationType> types = new ArrayList<OperationType>();
 
-		types.add(SplitterTaskController.CODE);
+		types.add(SplitterOperationController.CODE);
 
 		return types;
 	}
 
-	public TaskController porterRequestTask(String code) {
-
-		return new SplitterTaskController(code);
+	public OperationController porterRequestOperation(String code) {
+		return new SplitterOperationController(code);
 	}
 
-	public TaskController porterRequestTask(TaskTypeCode type) {
-
-		return new SplitterTaskController();
+	public OperationController porterRequestOperation(OperationType type) {
+		return new SplitterOperationController();
 	}
 
 	public static void main(String[] args) throws RemoteException, NotBoundException {

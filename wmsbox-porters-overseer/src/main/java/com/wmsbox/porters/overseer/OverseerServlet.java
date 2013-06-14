@@ -13,8 +13,8 @@ import javax.servlet.http.HttpSession;
 
 import com.wmsbox.porters.commons.Context;
 import com.wmsbox.porters.commons.PatronRemote;
-import com.wmsbox.porters.commons.Task;
-import com.wmsbox.porters.commons.TaskTypeFormat;
+import com.wmsbox.porters.commons.Operation;
+import com.wmsbox.porters.commons.OperationTypeFormat;
 import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Button;
 import com.wmsbox.porters.commons.interaction.Confirm;
@@ -32,44 +32,44 @@ public class OverseerServlet extends HttpServlet {
 
 		if (ctx != null) {
 			HttpSession session = request.getSession();
-			Task task = (Task) session.getAttribute("task");
+			Operation operation = (Operation) session.getAttribute("operation");
 			OverseerServer server = OverseerServer.INSTANCE;
 			PatronRemote patron = server.patron();
 
 			if (patron == null) {
 				//TODO
-			} else if (task == null) {
-				String taskType = request.getParameter("taskType");
+			} else if (operation == null) {
+				String operationType = request.getParameter("operationType");
 
-				if (taskType != null) {
-					task = patron.porterRequestTask(TaskTypeFormat.INSTANCE.parse(taskType), ctx);
+				if (operationType != null) {
+					operation = patron.porterRequestOperation(OperationTypeFormat.INSTANCE.parse(operationType), ctx);
 				} else {
 					String code = request.getParameter("code");
 
 					if (code != null) {
-						task = patron.porterRequestTask(code, ctx);
+						operation = patron.porterRequestOperation(code, ctx);
 					} else {
-						request.setAttribute("taskTypes", patron.getTaskTypes());
+						request.setAttribute("operationTypes", patron.getOperationTypes());
 					}
 				}
 
-				prepareView(request, task);
+				prepareView(request, operation);
 			} else {
 				String actionKey = request.getParameter("actionKey");
 				log("actionKey " + actionKey);
 
 				if (actionKey != null) {
 					if (actionKey.equals("cancel")) {
-						task.cancelByPorter();
-						patron.cancel(task);
-						session.removeAttribute("task");
-						request.setAttribute("taskTypes", patron.getTaskTypes());
+						operation.cancelByPorter();
+						patron.cancel(operation);
+						session.removeAttribute("operation");
+						request.setAttribute("operationTypes", patron.getOperationTypes());
 					} else {
-						Action action = task.action(actionKey);
-						task.porterDo(action, action instanceof InputString? request.getParameter("input")
-								: null);
-						task = patron.porterIteracts(task);
-						prepareView(request, task);
+						Action action = operation.action(actionKey);
+						operation.porterDo(action, action instanceof InputString
+								? request.getParameter("input")	: null);
+						operation = patron.porterIteracts(operation);
+						prepareView(request, operation);
 					}
 				}
 			}
@@ -78,18 +78,18 @@ public class OverseerServlet extends HttpServlet {
 		request.getRequestDispatcher("/WEB-INF/template.jsp").forward(request, response);
 	}
 
-	private void prepareView(HttpServletRequest request, Task task) {
-		System.out.println("--------- " + task);
-		request.getSession().setAttribute("task", task);
+	private void prepareView(HttpServletRequest request, Operation operation) {
+		System.out.println("--------- " + operation);
+		request.getSession().setAttribute("operation", operation);
 
-		if (task != null) {
-			if (task.getError() != null) {
-				request.setAttribute("error", task.getError().getKey());
+		if (operation != null) {
+			if (operation.getError() != null) {
+				request.setAttribute("error", operation.getError().getKey());
 			}
 
 			List<Button> buttons = new ArrayList<Button>();
 
-			for (Action action : task.getPossibleActions()) {
+			for (Action action : operation.getPossibleActions()) {
 				if (action instanceof InputString) {
 					request.setAttribute("inputLabel", action.getText());
 					request.setAttribute("inputDefaultValue", ((InputString) action).getDefaultValue());

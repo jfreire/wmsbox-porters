@@ -15,16 +15,16 @@
             <h1>I</h1>
             <ul>
                 <li class="logo">INDITEX</li>
-                <li class="app">Porters (version)</li>
+                <li class="app">ASR Zaragoza 1.0.0</li>
                 <c:if test="${sessionScope.porter != null}">
                     <li class="user">${sessionScope.porter}</li>
                     <c:forEach var="navOption" items="${navOptions}">
                         <li><a href="?nav=${navOption.key}">${navOption.label}</a></li>
                     </c:forEach>
                     <c:if test="${sessionScope.task != null}">
-                        <li><a href="?nav=cancel">Cancelar</a></li>
+                        <li><a href="?nav=cancel">Cancelar operación actual</a></li>
                     </c:if>
-                    <li><a href="?nav=logout">Logout</a></li>
+                    <li><a href="?nav=logout">Salir</a></li>
                 </c:if>
             </ul>
         </div>
