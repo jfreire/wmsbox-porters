@@ -30,12 +30,19 @@ public class PatronRemoteImpl implements PatronRemote {
 		return this.patron.getOperationTypes();
 	}
 
-	public Operation porterIteracts(Operation operation) {
+	public Operation porterIteracts(Operation operation) throws RemoteException {
 		OperationThread taskThread = this.operations.get(operation.getId());
 		taskThread.interactReturn(operation);
 
 		if (!operation.getState().isLive()) {
+			OperationController nextController = taskThread.getNextController();
+			this.operations.remove(operation.getId());
 
+			if (nextController == null) {
+				return null;
+			} else {
+				operation = startTask(nextController, operation.getContext());
+			}
 		}
 
 		return operation;

@@ -2,6 +2,7 @@ package com.wmsbox.porters.overseer;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -60,22 +61,20 @@ public class PorterServlet extends HttpServlet {
 				String operationType = request.getParameter("operationType");
 
 				if (operationType != null) {
-					operation = patron.porterRequestOperation(OperationTypeFormat.INSTANCE.parse(operationType), ctx);
-				} else {
-					String code = request.getParameter("code");
+					if ("search".equals(operationType)) {
+						String code = request.getParameter("code");
 
-					if (code != null) {
-						operation = patron.porterRequestOperation(code, ctx);
+						if (code != null) {
+							operation = patron.porterRequestOperation(code, ctx);
+						}
 					} else {
-						request.setAttribute("operationTypes", patron.getOperationTypes());
+						operation = patron.porterRequestOperation(OperationTypeFormat.INSTANCE
+								.parse(operationType), ctx);
 					}
 				}
-
-				prepareView(request, operation);
 			} else {
 				String actionKey = request.getParameter("actionKey");
 				String input = request.getParameter("input");
-				log("actionKey " + actionKey + " - input " + input + " - inputkey " + request.getParameter("inputKey"));
 
 				if (input != null && (actionKey == null || actionKey.equals("input"))) {
 					Action action = operation.action(request.getParameter("inputKey"));
@@ -97,22 +96,29 @@ public class PorterServlet extends HttpServlet {
 						operation.porterDo(action, inputValue);
 						operation = patron.porterIteracts(operation);
 					}
-
-					prepareView(request, operation);
 				} else if (actionKey != null) {
 					Action action = operation.action(actionKey);
 					operation.reset();
-					operation.porterDo(action, null);
+
+					if (action instanceof Confirm) {
+						String confirm = request.getParameter("confirm");
+						operation.porterDo(action, "si".equals(confirm));
+					} else {
+						operation.porterDo(action, null);
+					}
+
 					operation = patron.porterIteracts(operation);
-					prepareView(request, operation);
 				}
 			}
+
+			prepareView(request, operation, patron);
 		}
 
 		request.getRequestDispatcher("/WEB-INF/template.jsp").forward(request, response);
 	}
 
-	private void prepareView(HttpServletRequest request, Operation operation) {
+	private void prepareView(HttpServletRequest request, Operation operation, PatronRemote patron)
+			throws RemoteException {
 		request.getSession().setAttribute("operation", operation);
 
 		if (operation != null) {
@@ -134,12 +140,15 @@ public class PorterServlet extends HttpServlet {
 					request.setAttribute("inputDefaultValue", ((InputInteger) action).getDefaultValue());
 				} else if (action instanceof Confirm) {
 					request.setAttribute("confirmText", action.getText());
+					request.setAttribute("confirmKey", action.getKey());
 				} else {
 					buttons.add((Button) action);
 				}
 			}
 
 			request.setAttribute("buttons", buttons);
+		} else {
+			request.setAttribute("operationTypes", patron.getOperationTypes());
 		}
 	}
 

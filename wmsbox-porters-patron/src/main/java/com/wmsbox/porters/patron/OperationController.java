@@ -6,6 +6,7 @@ import java.util.ResourceBundle;
 import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.OperationType;
 import com.wmsbox.porters.commons.interaction.Action;
+import com.wmsbox.porters.commons.interaction.Button;
 import com.wmsbox.porters.commons.interaction.Confirm;
 import com.wmsbox.porters.commons.interaction.InputInteger;
 import com.wmsbox.porters.commons.interaction.InputString;
@@ -35,59 +36,74 @@ public abstract class OperationController {
 	 */
 	public abstract OperationController process() throws InterruptedException;
 
-	public final String inputString(String key)	throws InterruptedException {
-		return inputString(key, null);
+	public final String inputString(String key) throws InterruptedException {
+		return (String) inputString(key, (String) null);
 	}
 
-	public final String inputString(String key, String defaultValue)
+	public final Object inputString(String key, OptionKey... options) throws InterruptedException {
+		return inputString(key, null, options);
+	}
+
+	public final Object inputString(String key, String defaultValue, OptionKey... options)
 			throws InterruptedException {
-		Operation operation = this.operationThread.getOperation();
-		operation.request(new InputString(key, text(key), null));
+		return input(new InputString(key, text(key), null), options);
 
-		operation = this.operationThread.requestIteration();
-		System.out.println("Response " + operation.getPorterDo() + " - " + operation.getPorderDoValue());
-
-		return (String) operation.getPorderDoValue();
 	}
 
-	public final Integer inputInteger(String key) throws InterruptedException {
-		return inputInteger(key, null);
+	public final Object inputInteger(String key, OptionKey... options) throws InterruptedException {
+		return inputInteger(key, null, options);
 	}
 
-	public final Integer inputInteger(String key, Integer defaultValue)
+	public final Integer inputInteger(String key, Integer defaultValue) throws InterruptedException {
+		return (Integer) input(new InputInteger(key, text(key), null), null);
+	}
+
+	public final Object inputInteger(String key, Integer defaultValue, OptionKey... options)
 			throws InterruptedException {
-		Operation operation = this.operationThread.getOperation();
-		operation.request(new InputInteger(key, text(key), defaultValue));
-
-		operation = this.operationThread.requestIteration();
-		System.out.println("ResponseInteger " + operation.getPorterDo() + " - " + operation.getPorderDoValue());
-
-		return (Integer) operation.getPorderDoValue();
+		return input(new InputInteger(key, text(key), null), options);
 	}
 
-	/**
-	 *
-	 * @param actionKeys pueden ser opciones o un input y opciones.
-	 * @return Resultado de la entrada o el botón pulsado
-	 * @throws InterruptedException
-	 */
-	public final Object choose(Action... actionKeys) throws InterruptedException {
+	private Object input(Action action, OptionKey[] options) throws InterruptedException {
 		Operation operation = this.operationThread.getOperation();
-		operation.request(actionKeys);
+
+		if (options == null) {
+			operation.request(action);
+		} else {
+			Action[] actions = new Action[options.length + 1];
+			actions[0] = action;
+
+			for (int i = 0; i < options.length; i++) {
+				String optionKey = options[i].name();
+				actions[i + 1] = new Button(optionKey, text(optionKey));
+			}
+
+			operation.request(actions);
+		}
 
 		operation = this.operationThread.requestIteration();
 
-		return operation.getPorderDoValue() != null ? operation.getPorderDoValue()
-				: operation.getPorterDo();
+		Action porterDo = operation.getPorterDo();
+		Object value = operation.getPorderDoValue();
+
+		if (value != null) {
+			return value;
+		}
+
+		for (OptionKey option : options) {
+			if (porterDo.getKey().equals(option.name())) {
+				return option;
+			}
+		}
+
+		return null;
 	}
 
 	public final boolean confirm(String key, Object... params) throws InterruptedException {
 		Operation operation = this.operationThread.getOperation();
 		operation.request(new Confirm(key, text(key, params)));
-
 		operation = this.operationThread.requestIteration();
 
-		return operation.getPorderDoValue() != null ? Boolean.TRUE == operation.getPorderDoValue()
+		return operation.getPorderDoValue() != null ? Boolean.TRUE.equals(operation.getPorderDoValue())
 				: false;
 	}
 

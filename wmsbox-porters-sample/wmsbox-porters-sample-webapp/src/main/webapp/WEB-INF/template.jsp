@@ -54,6 +54,7 @@
                         </c:forEach>
                     </ul>
                     <input name="code" type="text" autofocus="true" />
+                    <button name="operationType" value="search">&gt;</button>
                 </form>
             </c:if>
             <c:if test="${sessionScope.operation != null}">
@@ -70,7 +71,7 @@
                         <label for="input">${inputLabel}</label>
                         <c:if test="${inputMode == 'integer'}">
                             <button onclick="document.forms[0].input.value--; return false;">-</button>
-                            <input name="input" autofocus="true" value="${inputDefaultValue}"/>
+                            <input name="input" autofocus="true" class="integer" size="8" value="${inputDefaultValue}"/>
                             <button onclick="document.forms[0].input.value++; return false;">+</button>
                         </c:if>
                         <c:if test="${inputMode != 'integer'}">
@@ -82,8 +83,9 @@
                     <c:if test="${confirmText != null}">
                         <div class="confirm">${confirmText}</div>
                         <div class="buttons">
-                            <button name="actionKey" value="si">SI</button>
-                            <button name="actionKey" value="no">NO</button>
+                            <input name="actionKey" type="hidden" value="${confirmKey}"/>
+                            <button name="confirm" value="si">SI</button>
+                            <button name="confirm" value="no">NO</button>
                         </div>
                     </c:if>
                     <c:if test="${confirmText == null}">

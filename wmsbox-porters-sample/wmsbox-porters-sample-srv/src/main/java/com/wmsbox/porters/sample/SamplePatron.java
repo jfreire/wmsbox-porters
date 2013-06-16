@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.wmsbox.porters.commons.OperationType;
+import com.wmsbox.porters.patron.OperationController;
 import com.wmsbox.porters.patron.OverseerConnector;
 import com.wmsbox.porters.patron.Patron;
-import com.wmsbox.porters.patron.OperationController;
 
 public class SamplePatron implements Patron {
 
@@ -25,6 +25,7 @@ public class SamplePatron implements Patron {
 	}
 
 	public OperationController porterRequestOperation(String code) {
+		System.out.println("request " + code);
 		return new SplitterOperationController(code);
 	}
 

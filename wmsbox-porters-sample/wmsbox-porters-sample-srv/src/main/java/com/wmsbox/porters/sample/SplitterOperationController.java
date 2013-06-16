@@ -3,11 +3,16 @@ package com.wmsbox.porters.sample;
 import com.wmsbox.porters.commons.OperationType;
 import com.wmsbox.porters.commons.OperationTypeFormat;
 import com.wmsbox.porters.patron.OperationController;
+import com.wmsbox.porters.patron.OptionKey;
 
 
 public class SplitterOperationController extends OperationController {
 
 	public static final OperationType CODE = OperationTypeFormat.INSTANCE.create("ASR", "SPL");
+
+	private static enum Option implements OptionKey {
+		LAST;
+	}
 
 	private final String sourceLabel;
 
@@ -28,24 +33,28 @@ public class SplitterOperationController extends OperationController {
 		info(1, "container.label", container.getLabel());
 		info(2, "container.content", container.getSku(), totalUnits);
 
-		int units = readUnits(totalUnits, garmentsPerBar(container.getSku()));
+		int units = readUnits(totalUnits, ContainerRepo.INSTANCE.garmentsPerBar(container.getSku()));
 
 		String targetLabel = readTargetLabel();
-		transfer(container, targetLabel, units);
 
-		return new SplitterOperationController(targetLabel);
+		if (targetLabel != null) {
+			ContainerRepo.INSTANCE.transfer(container, targetLabel, units);
+
+			return new SplitterOperationController(targetLabel);
+		}
+
+		return null;
 	}
 
 	private Container readContainerSource() throws InterruptedException {
 		Container container = null;
-
 		if (this.sourceLabel != null) {
-			container = findContainer(this.sourceLabel);
+			container = ContainerRepo.INSTANCE.findContainer(this.sourceLabel);
 		}
 
 		while (container == null) {
 			String containerLabel = inputString("container");
-			container = findContainer(containerLabel);
+			container = ContainerRepo.INSTANCE.findContainer(containerLabel);
 
 			if (container == null) {
 				error("container.notFound", containerLabel);
@@ -64,6 +73,7 @@ public class SplitterOperationController extends OperationController {
 
 			if (enteredUnits > garmentsPerMeter * 2) {
 				if (confirm("units.tooMuch", enteredUnits)) {
+					info(3, "units.info", enteredUnits);
 					units = enteredUnits;
 				}
 			} else {
@@ -78,9 +88,15 @@ public class SplitterOperationController extends OperationController {
 		String label = null;
 
 		while (label == null) {
-			String currentLabel = inputString("target");
+			Object result = inputString("target", Option.LAST);
 
-			if (findContainer(currentLabel) != null) {
+			if (result == Option.LAST) {
+				return null;
+			}
+
+			String currentLabel = (String) result;
+
+			if (ContainerRepo.INSTANCE.findContainer(currentLabel) != null) {
 				error("target.exists", currentLabel);
 			} else {
 				label = currentLabel;
@@ -88,28 +104,5 @@ public class SplitterOperationController extends OperationController {
 		}
 
 		return label;
-	}
-
-	private Container findContainer(String label) {
-		try {
-			long code = Long.parseLong(label);
-
-			if (label.endsWith("8") || label.endsWith("9")) {
-				return new Container(label, 12341231200l + (int) ((code / 1000) % 100),
-						(int) ((code / 10) % 100));
-			}
-
-			return null;
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	private int garmentsPerBar(long sku) {
-		return 30;
-	}
-
-	private void transfer(Container container, String targetLabel, int units) {
-		System.out.println("Transfer completed " + container + " - " + targetLabel + " - " + units);
 	}
 }
