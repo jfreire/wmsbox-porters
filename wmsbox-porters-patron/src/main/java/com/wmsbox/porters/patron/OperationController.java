@@ -44,7 +44,8 @@ public abstract class OperationController {
 		Operation operation = this.operationThread.getOperation();
 		operation.request(new InputString(key, text(key), null));
 
-		this.operationThread.requestIteration();
+		operation = this.operationThread.requestIteration();
+		System.out.println("Response " + operation.getPorterDo() + " - " + operation.getPorderDoValue());
 
 		return (String) operation.getPorderDoValue();
 	}
@@ -58,7 +59,8 @@ public abstract class OperationController {
 		Operation operation = this.operationThread.getOperation();
 		operation.request(new InputInteger(key, text(key), defaultValue));
 
-		this.operationThread.requestIteration();
+		operation = this.operationThread.requestIteration();
+		System.out.println("ResponseInteger " + operation.getPorterDo() + " - " + operation.getPorderDoValue());
 
 		return (Integer) operation.getPorderDoValue();
 	}
@@ -73,7 +75,7 @@ public abstract class OperationController {
 		Operation operation = this.operationThread.getOperation();
 		operation.request(actionKeys);
 
-		this.operationThread.requestIteration();
+		operation = this.operationThread.requestIteration();
 
 		return operation.getPorderDoValue() != null ? operation.getPorderDoValue()
 				: operation.getPorterDo();
@@ -83,7 +85,7 @@ public abstract class OperationController {
 		Operation operation = this.operationThread.getOperation();
 		operation.request(new Confirm(key, text(key, params)));
 
-		this.operationThread.requestIteration();
+		operation = this.operationThread.requestIteration();
 
 		return operation.getPorderDoValue() != null ? Boolean.TRUE == operation.getPorderDoValue()
 				: false;
@@ -101,8 +103,8 @@ public abstract class OperationController {
 
 	private String text(String key) {
 		Operation operation = this.operationThread.getOperation();
-		ResourceBundle rb = ResourceBundle.getBundle("messages.properties",
-				operation.getContext().getLocale());
+		ResourceBundle rb = ResourceBundle.getBundle("messages",
+				operation.getContext().getLocale(), getClass().getClassLoader());
 
 		String text = rb.getString(this.type + "." + key);
 

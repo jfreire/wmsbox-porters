@@ -1,15 +1,21 @@
 package com.wmsbox.porters.overseer;
 
+import java.rmi.RemoteException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wmsbox.porters.commons.Context;
-import com.wmsbox.porters.commons.OverseerRemote;
-import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.OperationRequest;
 import com.wmsbox.porters.commons.OperationType;
+import com.wmsbox.porters.commons.OverseerRemote;
+import com.wmsbox.porters.commons.PatronRemote;
 
 public class OverseerServer implements OverseerRemote {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(OverseerServer.class);
 
 	public static final OverseerServer INSTANCE = new OverseerServer();
 
@@ -20,9 +26,9 @@ public class OverseerServer implements OverseerRemote {
 
 	}
 
-	public void register(PatronRemote patron) {
-		System.out.println("registrado .....");
-		this.patron = patron; //TODO futuro varios patrones.
+	public void register(PatronRemote patron) throws RemoteException {
+		LOGGER.info("Registrado ..... {} ", patron.getKey());
+		this.patron = patron;
 	}
 
 	public PatronRemote patron() {

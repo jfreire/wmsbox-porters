@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.wmsbox.porters.commons.Context;
-import com.wmsbox.porters.commons.OverseerRemote;
-import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.OperationType;
+import com.wmsbox.porters.commons.OverseerRemote;
+import com.wmsbox.porters.commons.PatronRemote;
 
 public class PatronRemoteImpl implements PatronRemote {
 
@@ -34,30 +34,27 @@ public class PatronRemoteImpl implements PatronRemote {
 		OperationThread taskThread = this.operations.get(operation.getId());
 		taskThread.interactReturn(operation);
 
+		if (!operation.getState().isLive()) {
+
+		}
+
 		return operation;
 	}
 
-	public Operation porterRequestOperation(String code, Context ctx) {
+	public Operation porterRequestOperation(String code, Context ctx) throws RemoteException {
 		OperationController controller = this.patron.porterRequestOperation(code);
 
 		return startTask(controller, ctx);
 	}
 
-	public Operation porterRequestOperation(OperationType type, Context ctx) {
+	public Operation porterRequestOperation(OperationType type, Context ctx) throws RemoteException {
 		OperationController controller = this.patron.porterRequestOperation(type);
 
 		return startTask(controller, ctx);
 	}
 
-	private Operation startTask(OperationController controller, Context ctx) {
-		Operation operation;
-
-		try {
-			operation = this.overseer.createOperation(controller.getType(), ctx);
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
-
+	private Operation startTask(OperationController controller, Context ctx) throws RemoteException {
+		Operation operation = this.overseer.createOperation(controller.getType(), ctx);
 		OperationThread thread = new OperationThread(controller, operation);
 		this.operations.put(operation.getId(), thread);
 		operation.goToProcess();

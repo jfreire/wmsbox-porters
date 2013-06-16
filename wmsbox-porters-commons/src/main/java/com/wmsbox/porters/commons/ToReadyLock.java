@@ -16,10 +16,15 @@ public class ToReadyLock {
 				try {
 					wait();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Thread.currentThread().interrupt();
 				}
 			}
+		}
+	}
+
+	public void end() {
+		synchronized (this) {
+			notify();
 		}
 	}
 }

@@ -21,8 +21,8 @@
                     <c:forEach var="navOption" items="${navOptions}">
                         <li><a href="?nav=${navOption.key}">${navOption.label}</a></li>
                     </c:forEach>
-                    <c:if test="${sessionScope.task != null}">
-                        <li><a href="?nav=cancel">Cancelar operación actual</a></li>
+                    <c:if test="${sessionScope.operation != null}">
+                        <li><a href="?nav=cancel">Cancelar operaci&oacute;n actual</a></li>
                     </c:if>
                     <li><a href="?nav=logout">Salir</a></li>
                 </c:if>
@@ -31,51 +31,68 @@
         <div class="content">
             <c:if test="${sessionScope.porter == null}">
                 <form method="post">
-                    <c:if test="error != null">
+                    <c:if test="${error != null}">
                         <div class="error">${error}</div>
                     </c:if>
-                    <label for="input">User</label>
+                    <label for="porter">User</label>
                     <input name="porter" type="text" autofocus="true" />
-                    <label for="input">Password</label>
+                    <label for="password">Password</label>
                     <input name="password" type="password" />
                     <div class="buttons">
                         <button name="button" value="login">Acceder</button>
                     </div>
                 </form>
             </c:if>
-            <c:if test="${sessionScope.porter != null && sessionScope.task == null}">
+            <c:if test="${sessionScope.porter != null && sessionScope.operation == null}">
                 <form method="post">
                     <c:if test="${error != null}">
                         <div class="error">${error}</div>
                     </c:if>
                     <ul id="operations">
-                        <c:forEach var="taskType" items="${taskTypes}">
-                            <li><button name="taskType" value="${taskType}">${taskType}</button></li>
+                        <c:forEach var="operationType" items="${operationTypes}">
+                            <li><button name="operationType" value="${operationType}">${operationType}</button></li>
                         </c:forEach>
                     </ul>
                     <input name="code" type="text" autofocus="true" />
                 </form>
             </c:if>
-            <c:if test="${sessionScope.task != null}">
+            <c:if test="${sessionScope.operation != null}">
                 <div id="info">
-                    <c:forEach var="info" items="${sessionScope.task.messages}">
-                        <div class="blockInfo">${info}</div>
+                    <c:forEach var="info" items="${sessionScope.operation.messages}">
+                        <div class="blockInfo">${info.text}</div>
                     </c:forEach>
                 </div>
                 <form method="post">
-                    <c:if test="${error != null}">
-                        <div class="error">${error}</div>
+                    <c:if test="${sessionScope.operation.error != null}">
+                        <div class="error">${sessionScope.operation.error.text}</div>
                     </c:if>
                     <c:if test="${inputLabel != null}">
                         <label for="input">${inputLabel}</label>
-                        <input name="input" autofocus="true" value="${inputDefaultValue}"/>
-                        <button name="actionKey" value="inputOk">&gt;</button>
+                        <c:if test="${inputMode == 'integer'}">
+                            <button onclick="document.forms[0].input.value--; return false;">-</button>
+                            <input name="input" autofocus="true" value="${inputDefaultValue}"/>
+                            <button onclick="document.forms[0].input.value++; return false;">+</button>
+                        </c:if>
+                        <c:if test="${inputMode != 'integer'}">
+                            <input name="input" autofocus="true" value="${inputDefaultValue}"/>
+                        </c:if>
+                        <input name="inputKey" type="hidden" value="${inputKey}"/>
+                        <button name="actionKey" value="input">&gt;</button>
                     </c:if>
-                    <div class="buttons">
-                        <c:forEach var="button" items="${buttons}">
-                            <button name="actionKey" value="${button}">${button}</button>
-                        </c:forEach>
-                    </div>
+                    <c:if test="${confirmText != null}">
+                        <div class="confirm">${confirmText}</div>
+                        <div class="buttons">
+                            <button name="actionKey" value="si">SI</button>
+                            <button name="actionKey" value="no">NO</button>
+                        </div>
+                    </c:if>
+                    <c:if test="${confirmText == null}">
+                        <div class="buttons">
+                            <c:forEach var="button" items="${buttons}">
+                                <button name="actionKey" value="${button.key}">${button.text}</button>
+                            </c:forEach>
+                        </div>
+                    </c:if>
                 </form>
             </c:if>
         </div>

@@ -1,6 +1,7 @@
 package com.wmsbox.porters.overseer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -12,16 +13,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.wmsbox.porters.commons.Context;
-import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.OperationTypeFormat;
+import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Button;
 import com.wmsbox.porters.commons.interaction.Confirm;
 import com.wmsbox.porters.commons.interaction.InputInteger;
 import com.wmsbox.porters.commons.interaction.InputString;
+import com.wmsbox.porters.commons.interaction.Message;
 
-public class OverseerServlet extends HttpServlet {
+public class PorterServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1646111608667964307L;
 
@@ -31,10 +33,26 @@ public class OverseerServlet extends HttpServlet {
 		Context ctx = context(request);
 
 		if (ctx != null) {
+			String navOption = request.getParameter("nav");
 			HttpSession session = request.getSession();
 			Operation operation = (Operation) session.getAttribute("operation");
 			OverseerServer server = OverseerServer.INSTANCE;
 			PatronRemote patron = server.patron();
+
+			if (navOption != null && navOption.length() > 0) {
+				if (navOption.equals("logout")) {
+					session.invalidate();
+				} else if (navOption.equals("cancel")) {
+					if (operation != null) {
+						operation.cancelByPorter();
+						patron.cancel(operation);
+						session.removeAttribute("operation");
+					}
+				}
+
+				response.sendRedirect(request.getRequestURI());
+				return;
+			}
 
 			if (patron == null) {
 				//TODO
@@ -56,21 +74,37 @@ public class OverseerServlet extends HttpServlet {
 				prepareView(request, operation);
 			} else {
 				String actionKey = request.getParameter("actionKey");
-				log("actionKey " + actionKey);
+				String input = request.getParameter("input");
+				log("actionKey " + actionKey + " - input " + input + " - inputkey " + request.getParameter("inputKey"));
 
-				if (actionKey != null) {
-					if (actionKey.equals("cancel")) {
-						operation.cancelByPorter();
-						patron.cancel(operation);
-						session.removeAttribute("operation");
-						request.setAttribute("operationTypes", patron.getOperationTypes());
+				if (input != null && (actionKey == null || actionKey.equals("input"))) {
+					Action action = operation.action(request.getParameter("inputKey"));
+					Serializable inputValue = null;
+
+					if (action instanceof InputInteger) {
+						try {
+							inputValue = Integer.parseInt(input);
+						} catch (Throwable e) {
+							operation.error(new Message("inputIntegerWrong",
+									"Numero incorrecto " + input));
+						}
 					} else {
-						Action action = operation.action(actionKey);
-						operation.porterDo(action, action instanceof InputString
-								? request.getParameter("input")	: null);
-						operation = patron.porterIteracts(operation);
-						prepareView(request, operation);
+						inputValue = input;
 					}
+
+					if (inputValue != null) {
+						operation.reset();
+						operation.porterDo(action, inputValue);
+						operation = patron.porterIteracts(operation);
+					}
+
+					prepareView(request, operation);
+				} else if (actionKey != null) {
+					Action action = operation.action(actionKey);
+					operation.reset();
+					operation.porterDo(action, null);
+					operation = patron.porterIteracts(operation);
+					prepareView(request, operation);
 				}
 			}
 		}
@@ -79,12 +113,11 @@ public class OverseerServlet extends HttpServlet {
 	}
 
 	private void prepareView(HttpServletRequest request, Operation operation) {
-		System.out.println("--------- " + operation);
 		request.getSession().setAttribute("operation", operation);
 
 		if (operation != null) {
 			if (operation.getError() != null) {
-				request.setAttribute("error", operation.getError().getKey());
+				request.setAttribute("error", operation.getError().getText());
 			}
 
 			List<Button> buttons = new ArrayList<Button>();
@@ -92,11 +125,15 @@ public class OverseerServlet extends HttpServlet {
 			for (Action action : operation.getPossibleActions()) {
 				if (action instanceof InputString) {
 					request.setAttribute("inputLabel", action.getText());
+					request.setAttribute("inputKey", action.getKey());
 					request.setAttribute("inputDefaultValue", ((InputString) action).getDefaultValue());
 				} else if (action instanceof InputInteger) {
-					//TODO
+					request.setAttribute("inputMode", "integer");
+					request.setAttribute("inputLabel", action.getText());
+					request.setAttribute("inputKey", action.getKey());
+					request.setAttribute("inputDefaultValue", ((InputInteger) action).getDefaultValue());
 				} else if (action instanceof Confirm) {
-					//TODO
+					request.setAttribute("confirmText", action.getText());
 				} else {
 					buttons.add((Button) action);
 				}

@@ -25,7 +25,8 @@ public class SplitterOperationController extends OperationController {
 	public OperationController process() throws InterruptedException {
 		Container container = readContainerSource();
 		int totalUnits = container.getUnits();
-		info(1, "container.content", container.getSku(), totalUnits);
+		info(1, "container.label", container.getLabel());
+		info(2, "container.content", container.getSku(), totalUnits);
 
 		int units = readUnits(totalUnits, garmentsPerBar(container.getSku()));
 
@@ -37,7 +38,7 @@ public class SplitterOperationController extends OperationController {
 
 	private Container readContainerSource() throws InterruptedException {
 		Container container = null;
-		
+
 		if (this.sourceLabel != null) {
 			container = findContainer(this.sourceLabel);
 		}
@@ -62,9 +63,11 @@ public class SplitterOperationController extends OperationController {
 			int enteredUnits = inputInteger("units", defaultUnits);
 
 			if (enteredUnits > garmentsPerMeter * 2) {
-				if (confirm("tooMuch.units", enteredUnits)) {
+				if (confirm("units.tooMuch", enteredUnits)) {
 					units = enteredUnits;
 				}
+			} else {
+				units = enteredUnits;
 			}
 		}
 
@@ -74,11 +77,11 @@ public class SplitterOperationController extends OperationController {
 	public String readTargetLabel() throws InterruptedException {
 		String label = null;
 
-		while (label != null) {
+		while (label == null) {
 			String currentLabel = inputString("target");
 
-			if (existsContainer(currentLabel)) {
-				error("exists", currentLabel);
+			if (findContainer(currentLabel) != null) {
+				error("target.exists", currentLabel);
 			} else {
 				label = currentLabel;
 			}
@@ -87,20 +90,9 @@ public class SplitterOperationController extends OperationController {
 		return label;
 	}
 
-	private boolean existsContainer(String label) {
-		try {
-			Long.parseLong(label);
-
-			return !label.endsWith("8") && !label.endsWith("9");
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
 	private Container findContainer(String label) {
 		try {
 			long code = Long.parseLong(label);
-
 
 			if (label.endsWith("8") || label.endsWith("9")) {
 				return new Container(label, 12341231200l + (int) ((code / 1000) % 100),
@@ -114,10 +106,10 @@ public class SplitterOperationController extends OperationController {
 	}
 
 	private int garmentsPerBar(long sku) {
-		return 50;
+		return 30;
 	}
 
 	private void transfer(Container container, String targetLabel, int units) {
-		//Nada
+		System.out.println("Transfer completed " + container + " - " + targetLabel + " - " + units);
 	}
 }

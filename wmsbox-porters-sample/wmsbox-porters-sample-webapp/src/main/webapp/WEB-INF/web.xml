@@ -7,14 +7,14 @@
     <display-name>Porters Sample</display-name>
  
     <servlet>
-        <servlet-name>overseer</servlet-name>
-        <servlet-class>com.wmsbox.porters.overseer.OverseerServlet</servlet-class>
+        <servlet-name>porter</servlet-name>
+        <servlet-class>com.wmsbox.porters.overseer.PorterServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
  
     <servlet-mapping>
-        <servlet-name>overseer</servlet-name>
-        <url-pattern>/overseer</url-pattern>
+        <servlet-name>porter</servlet-name>
+        <url-pattern>/porter</url-pattern>
     </servlet-mapping>
  
     <context-param>
@@ -23,7 +23,7 @@
     </context-param>
     
     <welcome-file-list>
-        <welcome-file>overseer</welcome-file>
+        <welcome-file>porter</welcome-file>
     </welcome-file-list>
     
     <listener>

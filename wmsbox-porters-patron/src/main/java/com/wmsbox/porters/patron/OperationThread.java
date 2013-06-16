@@ -8,6 +8,7 @@ class OperationThread implements Runnable {
 	private final OperationController controller;
 	private final ToReadyLock controllerLock = new ToReadyLock();
 	private final ToReadyLock connectionLock = new ToReadyLock();
+	private OperationController nextController;
 	private Operation operation;
 	private Thread thread;
 
@@ -36,7 +37,9 @@ class OperationThread implements Runnable {
 
 	public void run() {
 		try {
-			this.controller.process();
+			this.nextController = this.controller.process();
+			this.operation.completed();
+			this.connectionLock.end();
 		} catch (InterruptedException e) {
 			this.thread.interrupt();
 		}
@@ -46,8 +49,14 @@ class OperationThread implements Runnable {
 		this.thread.interrupt();
 	}
 
-	public void requestIteration() throws InterruptedException {
+	public Operation requestIteration() throws InterruptedException {
 		System.out.println("requestIteration " + this.operation);
 		this.controllerLock.readyAndWaitToReady(this.connectionLock);
+
+		return this.operation;
+	}
+
+	public OperationController getNextController() {
+		return this.nextController;
 	}
 }

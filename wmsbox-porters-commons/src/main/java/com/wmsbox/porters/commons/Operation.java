@@ -82,6 +82,7 @@ public class Operation extends Base {
 	}
 
 	public void porterDo(Action action, Serializable value) {
+		System.out.println("------------porterDo " + action + " - " + value);
 		this.lastPorterActivityTime = System.currentTimeMillis();
 		this.porterDo = action;
 		this.porderDoValue = value;
@@ -147,6 +148,7 @@ public class Operation extends Base {
 	@Override
 	public String toString() {
 		return "Task[" + this.id + ", " + this.type + ", " + Arrays.toString(this.possibleActions)
-				+ ", " + this.error + ", " + this.messages + "]";
+				+ ", " + this.error + ", " + this.messages + ", " + this.porterDo + ", "
+				+ this.porderDoValue + "]";
 	}
 }
