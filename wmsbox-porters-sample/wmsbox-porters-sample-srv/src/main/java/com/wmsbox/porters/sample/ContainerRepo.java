@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ContainerRepo {
+	
+	public static final String RECH = "RECH";
+	public static final String SPLITTER = "SPLITTER";
 
 	public static ContainerRepo INSTANCE = new ContainerRepo();
 
@@ -11,8 +14,8 @@ public class ContainerRepo {
 
 
 	public void transfer(Container container, String targetLabel, int units) {
-		this.containers.put(targetLabel, new Container(targetLabel, container.getSku(),
-				container.getUnits() - units));
+		this.containers.put(targetLabel, new Container(targetLabel, container.getPosition(), 
+				container.getSku(),	container.getUnits() - units));
 
 		System.out.println("Transfer completed " + container + " - " + targetLabel + " - " + units);
 	}
@@ -32,8 +35,8 @@ public class ContainerRepo {
 			long code = Long.parseLong(label);
 
 			if (label.endsWith("8") || label.endsWith("9")) {
-				return new Container(label, 12341231200l + (int) ((code / 1000) % 100),
-						(int) ((code / 10) % 100));
+				return new Container(label, label.endsWith("8") ? RECH : SPLITTER, 
+						12341231200l + (int) ((code / 1000) % 100),	(int) ((code / 10) % 100));
 			}
 
 			return null;

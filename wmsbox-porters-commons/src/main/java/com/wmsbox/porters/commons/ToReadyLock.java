@@ -4,7 +4,7 @@ public class ToReadyLock {
 
 	private boolean ready = false;
 
-	public void readyAndWaitToReady(ToReadyLock otherLock) {
+	public void readyAndWaitToReady(ToReadyLock otherLock) throws InterruptedException {
 		synchronized (otherLock) {
 			this.ready = true;
 			otherLock.ready = false;
@@ -13,11 +13,7 @@ public class ToReadyLock {
 
 		synchronized (this) {
 			if (!otherLock.ready) {
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+				wait();
 			}
 		}
 	}

@@ -66,6 +66,10 @@ public class PorterServlet extends HttpServlet {
 
 						if (code != null) {
 							operation = patron.porterRequestOperation(code, ctx);
+							
+							if (operation == null) {
+								request.setAttribute("error", "Código inválido " + code);
+							}
 						}
 					} else {
 						operation = patron.porterRequestOperation(OperationTypeFormat.INSTANCE
@@ -148,7 +152,9 @@ public class PorterServlet extends HttpServlet {
 
 			request.setAttribute("buttons", buttons);
 		} else {
-			request.setAttribute("operationTypes", patron.getOperationTypes());
+			if (patron != null) {
+				request.setAttribute("operationTypes", patron.getOperationTypes());
+			}
 		}
 	}
 

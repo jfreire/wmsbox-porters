@@ -20,17 +20,31 @@ public class SamplePatron implements Patron {
 		List<OperationType> types = new ArrayList<OperationType>();
 
 		types.add(SplitterOperationController.CODE);
+		types.add(RejectionOperationController.CODE);
 
 		return types;
 	}
 
 	public OperationController porterRequestOperation(String code) {
-		System.out.println("request " + code);
-		return new SplitterOperationController(code);
+		Container container = ContainerRepo.INSTANCE.findContainer(code);
+		
+		if (container != null) {
+			if (container.getPosition().equals(ContainerRepo.SPLITTER)) {
+				return new SplitterOperationController(code);			
+			}
+			
+			return new RejectionOperationController(code);
+		}
+		
+		return null;
 	}
 
 	public OperationController porterRequestOperation(OperationType type) {
-		return new SplitterOperationController();
+		if (type.equals(SplitterOperationController.CODE)) {
+			return new SplitterOperationController();
+		} else {
+			return new RejectionOperationController();
+		}
 	}
 
 	public static void main(String[] args) throws RemoteException, NotBoundException {

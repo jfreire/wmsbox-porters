@@ -14,7 +14,7 @@ public class SplitterOperationController extends OperationController {
 		LAST;
 	}
 
-	private final String sourceLabel;
+	private String sourceLabel;
 
 	public SplitterOperationController() {
 		super(CODE);
@@ -31,7 +31,8 @@ public class SplitterOperationController extends OperationController {
 		Container container = readContainerSource();
 		int totalUnits = container.getUnits();
 		info(1, "container.label", container.getLabel());
-		info(2, "container.content", container.getSku(), totalUnits);
+		info(2, "container.position", container.getPosition());
+		info(3, "container.content", container.getSku(), totalUnits);
 
 		int units = readUnits(totalUnits, ContainerRepo.INSTANCE.garmentsPerBar(container.getSku()));
 
@@ -47,21 +48,36 @@ public class SplitterOperationController extends OperationController {
 	}
 
 	private Container readContainerSource() throws InterruptedException {
-		Container container = null;
-		if (this.sourceLabel != null) {
-			container = ContainerRepo.INSTANCE.findContainer(this.sourceLabel);
-		}
+		Container result = null;
 
-		while (container == null) {
-			String containerLabel = inputString("container");
-			container = ContainerRepo.INSTANCE.findContainer(containerLabel);
+		while (result == null) {
+			String containerLabel;
+			
+			if (this.sourceLabel != null) {
+				containerLabel = this.sourceLabel;
+				this.sourceLabel = null;
+			} else {
+				containerLabel = inputString("container");
+			}
+			
+			Container container = ContainerRepo.INSTANCE.findContainer(containerLabel);
 
 			if (container == null) {
 				error("container.notFound", containerLabel);
 			}
+			
+			if (container.getPosition().equals(ContainerRepo.SPLITTER)) {
+				//TODO si no es el primero de la barra??
+				result = container;
+			} else if (confirm("container.confirmInBar", containerLabel, container.getPosition())) {
+				container.setPosition(ContainerRepo.SPLITTER);
+				result = container;
+			} else {
+				//TODO
+			}
 		}
 
-		return container;
+		return result;
 	}
 
 	private int readUnits(int totalUnits, int garmentsPerMeter) throws InterruptedException {

@@ -9,10 +9,10 @@ textarea {
 body {
     font-size: 1.3em;
     line-height: 1.4;
-    margin : 1em auto;
+    margin : 0.2em auto;
     border : 1px dotted #aaa;
-    width : 400px;
-    height : 500px;
+    width : 450px;
+    height : 600px;
     position : relative;
 }
 
@@ -21,13 +21,17 @@ body {
 	position : absolute;
 }
 
+#navhead {
+	display:none
+}
+
 #nav h1 {
 	margin : 0;
 	background-color : #b5372c;
 	color : white;
 	font-family: impact;
 	padding : 0.1em 0.65em;
-	display : inline-block;
+	display : block-inline;
 	cursor : pointer;
 }
 

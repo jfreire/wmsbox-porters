@@ -51,6 +51,10 @@ public class PatronRemoteImpl implements PatronRemote {
 	public Operation porterRequestOperation(String code, Context ctx) throws RemoteException {
 		OperationController controller = this.patron.porterRequestOperation(code);
 
+		if (controller == null) {
+			return null;
+		}
+		
 		return startTask(controller, ctx);
 	}
 

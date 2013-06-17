@@ -3,11 +3,13 @@ package com.wmsbox.porters.sample;
 public class Container {
 
 	private final String label;
+	private String position;
 	private final long sku;
 	private int units;
 	
-	public Container(String label, long sku, int units) {
+	public Container(String label, String position, long sku, int units) {
 		this.label = label;
+		this.position = position;
 		this.sku = sku;
 		this.units = units;
 	}
@@ -26,5 +28,13 @@ public class Container {
 
 	public long getSku() {
 		return sku;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
 	}
 }

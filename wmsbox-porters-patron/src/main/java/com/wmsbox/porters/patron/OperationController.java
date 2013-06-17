@@ -1,6 +1,7 @@
 package com.wmsbox.porters.patron;
 
 import java.text.MessageFormat;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import com.wmsbox.porters.commons.Operation;
@@ -86,12 +87,15 @@ public abstract class OperationController {
 		Object value = operation.getPorderDoValue();
 
 		if (value != null) {
+			System.out.println("----> Value " + value);
 			return value;
 		}
 
-		for (OptionKey option : options) {
-			if (porterDo.getKey().equals(option.name())) {
-				return option;
+		if (options != null) {
+			for (OptionKey option : options) {
+				if (porterDo.getKey().equals(option.name())) {
+					return option;
+				}
 			}
 		}
 
@@ -122,10 +126,16 @@ public abstract class OperationController {
 		ResourceBundle rb = ResourceBundle.getBundle("messages",
 				operation.getContext().getLocale(), getClass().getClassLoader());
 
-		String text = rb.getString(this.type + "." + key);
-
-		if (text == null) {
-			text = rb.getString(key);
+		String text;
+		
+		try {
+			text = rb.getString(this.type + "." + key);
+		} catch (MissingResourceException e) {
+			try {
+				text = rb.getString(key);
+			} catch (MissingResourceException e2) {
+				text = key;
+			}
 		}
 
 		return text;

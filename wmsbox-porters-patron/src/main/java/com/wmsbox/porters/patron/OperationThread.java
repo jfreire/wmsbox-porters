@@ -1,5 +1,7 @@
 package com.wmsbox.porters.patron;
 
+import java.util.Arrays;
+
 import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.ToReadyLock;
 
@@ -21,7 +23,12 @@ class OperationThread implements Runnable {
 	public void start() {
 		this.thread = new Thread(this);
 		this.thread.start();
-		this.connectionLock.readyAndWaitToReady(this.controllerLock);
+		
+		try {
+			this.connectionLock.readyAndWaitToReady(this.controllerLock);
+		} catch (InterruptedException e) {
+			this.thread.interrupt();
+		}
 	}
 
 	public Operation getOperation() {
@@ -31,7 +38,13 @@ class OperationThread implements Runnable {
 	public void interactReturn(Operation operation) {
 		System.out.println("interactReturn " + operation);
 		this.operation = operation;
-		this.connectionLock.readyAndWaitToReady(this.controllerLock);
+		
+		try {
+			this.connectionLock.readyAndWaitToReady(this.controllerLock);
+		} catch (InterruptedException e) {
+			this.thread.interrupt();
+		}
+		
 		System.out.println("interactReturn End " + operation);
 	}
 
@@ -39,13 +52,18 @@ class OperationThread implements Runnable {
 		try {
 			this.nextController = this.controller.process();
 			this.operation.completed();
-			this.connectionLock.end();
 		} catch (InterruptedException e) {
 			this.thread.interrupt();
+		} catch (Exception e) {
+			this.operation.cancelByPatron();
+			//TODO enviar error
+		} finally {
+			this.connectionLock.end();
 		}
 	}
 
 	public void cancel() {
+		System.out.println("Cancel " + Arrays.toString(this.thread.getStackTrace()));
 		this.thread.interrupt();
 	}
 
