@@ -54,7 +54,7 @@ public class PatronRemoteImpl implements PatronRemote {
 		if (controller == null) {
 			return null;
 		}
-		
+
 		return startTask(controller, ctx);
 	}
 
@@ -77,5 +77,9 @@ public class PatronRemoteImpl implements PatronRemote {
 	public void cancel(Operation operation) throws RemoteException {
 		OperationThread operationThread = this.operations.get(operation.getId());
 		operationThread.cancel();
+	}
+
+	public void ping() throws RemoteException {
+		// Nada
 	}
 }

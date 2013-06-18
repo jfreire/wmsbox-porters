@@ -29,12 +29,20 @@ public class SplitterOperationController extends OperationController {
 	@Override
 	public OperationController process() throws InterruptedException {
 		Container container = readContainerSource();
+
 		int totalUnits = container.getUnits();
 		info(1, "container.label", container.getLabel());
 		info(2, "container.position", container.getPosition());
 		info(3, "container.content", container.getSku(), totalUnits);
+		//TODO mostrar descripción del articulo.
 
-		int units = readUnits(totalUnits, ContainerRepo.INSTANCE.garmentsPerBar(container.getSku()));
+		int garmentsPerBar = ContainerRepo.INSTANCE.garmentsPerBar(container.getSku());
+		info (4, "container.estimatedGarments", garmentsPerBar);
+
+		//Si pocas unidades y siguiente mismo sku pedir escanear y retirar siguiente matricula => TCON
+
+
+		int units = readUnits(totalUnits, garmentsPerBar);
 
 		String targetLabel = readTargetLabel();
 
@@ -52,25 +60,45 @@ public class SplitterOperationController extends OperationController {
 
 		while (result == null) {
 			String containerLabel;
-			
+
 			if (this.sourceLabel != null) {
 				containerLabel = this.sourceLabel;
 				this.sourceLabel = null;
 			} else {
 				containerLabel = inputString("container");
 			}
-			
+
+			//findContaienr solicitará SICR si hace falta y esperar 0's o el tiempo configurado.
 			Container container = ContainerRepo.INSTANCE.findContainer(containerLabel);
 
 			if (container == null) {
 				error("container.notFound", containerLabel);
-			}
-			
-			if (container.getPosition().equals(ContainerRepo.SPLITTER)) {
-				//TODO si no es el primero de la barra??
-				result = container;
+
+				if (confirm("container.confirmCreation", containerLabel)) {
+					//TODO Solicitar sku y unidades?
+					//container = new Container(containerLabel, ContainerRepo.SPLITTER, sku, units);
+				}
+			} else if (container.getPosition().equals(ContainerRepo.SPLITTER)) {
+				if (true) { //Primero de la barra?
+					result = container;
+				} else {
+					//TODO solicitar barra,
+
+					if (true) { //Si barra es la esperada.
+						result = container; //Mover contenedores más antiguas a null.
+					} else {
+						// No mover contenedores de la barra a null.
+						// Actualizar posición ??
+						result = container;
+					}
+				}
 			} else if (confirm("container.confirmInBar", containerLabel, container.getPosition())) {
 				container.setPosition(ContainerRepo.SPLITTER);
+				//Preguntar barra y NO mover contenedores a null. Poner este como mas antiguo.
+
+				//TODO solicitar barra,
+				// No mover contenedores de la barra a null.
+				// Actualizar posición ??
 				result = container;
 			} else {
 				//TODO
@@ -82,14 +110,16 @@ public class SplitterOperationController extends OperationController {
 
 	private int readUnits(int totalUnits, int garmentsPerMeter) throws InterruptedException {
 		Integer units = null;
+
 		int defaultUnits = Math.min(totalUnits, garmentsPerMeter);
 
 		while (units == null) {
+			//TODO opción de contenido invalido => Cancelar tarea actual e invocar la de modificación de pusto de rechazo
 			int enteredUnits = inputInteger("units", defaultUnits);
 
-			if (enteredUnits > garmentsPerMeter * 2) {
+			if (enteredUnits > garmentsPerMeter * 2) { //TODO margen configurable
 				if (confirm("units.tooMuch", enteredUnits)) {
-					info(3, "units.info", enteredUnits);
+					info(4, "units.info", enteredUnits);
 					units = enteredUnits;
 				}
 			} else {

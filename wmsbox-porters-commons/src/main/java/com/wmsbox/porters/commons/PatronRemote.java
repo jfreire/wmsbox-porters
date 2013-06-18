@@ -14,6 +14,8 @@ public interface PatronRemote extends Remote {
 
 	Operation porterRequestOperation(String code, Context ctx) throws RemoteException;
 
+	void ping() throws RemoteException;
+
 	Operation porterRequestOperation(OperationType type, Context ctx) throws RemoteException;
 
 	void cancel(Operation operation) throws RemoteException;

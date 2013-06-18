@@ -3,7 +3,6 @@ package com.wmsbox.porters.patron;
 import java.util.Arrays;
 
 import com.wmsbox.porters.commons.Operation;
-import com.wmsbox.porters.commons.ToReadyLock;
 
 class OperationThread implements Runnable {
 

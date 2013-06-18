@@ -7,15 +7,19 @@ import java.rmi.server.UnicastRemoteObject;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 
+import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.OverseerRemote;
 
-public class ContextLoaderListener implements ServletContextListener {
+public class WebListener implements ServletContextListener, HttpSessionListener {
 
 	private static final String PORT_PARAM = "overseer-patron-port";
 
 	public void contextDestroyed(ServletContextEvent evt) {
-		// TODO Auto-generated method stub
+		// TODO Cancelar operaciones
+		OverseerServer.INSTANCE.cancelAll();
 	}
 
 	public void contextInitialized(ServletContextEvent evt) {
@@ -33,6 +37,19 @@ public class ContextLoaderListener implements ServletContextListener {
 			registry.rebind(OverseerRemote.REMOTE_REFERENCE_NAME, stub);
 		} catch (RemoteException e) {
 			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public void sessionCreated(HttpSessionEvent evt) {
+		// Nada
+
+	}
+
+	public void sessionDestroyed(HttpSessionEvent evt) {
+		Operation operation = (Operation) evt.getSession().getAttribute("operation");
+
+		if (operation != null) {
+			OverseerServer.INSTANCE.cancel(operation);
 		}
 	}
 }

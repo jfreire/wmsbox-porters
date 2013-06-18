@@ -12,4 +12,6 @@ public interface OverseerRemote extends Remote {
 	void request(OperationRequest request) throws RemoteException;
 
 	Operation createOperation(OperationType type, Context context) throws RemoteException;
+
+	void ping() throws RemoteException;
 }

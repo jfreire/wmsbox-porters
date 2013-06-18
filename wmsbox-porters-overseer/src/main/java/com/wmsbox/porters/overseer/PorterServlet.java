@@ -16,7 +16,6 @@ import javax.servlet.http.HttpSession;
 import com.wmsbox.porters.commons.Context;
 import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.OperationTypeFormat;
-import com.wmsbox.porters.commons.PatronRemote;
 import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Button;
 import com.wmsbox.porters.commons.interaction.Confirm;
@@ -38,15 +37,13 @@ public class PorterServlet extends HttpServlet {
 			HttpSession session = request.getSession();
 			Operation operation = (Operation) session.getAttribute("operation");
 			OverseerServer server = OverseerServer.INSTANCE;
-			PatronRemote patron = server.patron();
 
 			if (navOption != null && navOption.length() > 0) {
 				if (navOption.equals("logout")) {
 					session.invalidate();
 				} else if (navOption.equals("cancel")) {
 					if (operation != null) {
-						operation.cancelByPorter();
-						patron.cancel(operation);
+						OverseerServer.INSTANCE.cancel(operation);
 						session.removeAttribute("operation");
 					}
 				}
@@ -55,9 +52,7 @@ public class PorterServlet extends HttpServlet {
 				return;
 			}
 
-			if (patron == null) {
-				//TODO
-			} else if (operation == null) {
+			if (operation == null) {
 				String operationType = request.getParameter("operationType");
 
 				if (operationType != null) {
@@ -65,14 +60,14 @@ public class PorterServlet extends HttpServlet {
 						String code = request.getParameter("code");
 
 						if (code != null) {
-							operation = patron.porterRequestOperation(code, ctx);
-							
+							operation = server.porterRequestOperation(code, ctx);
+
 							if (operation == null) {
 								request.setAttribute("error", "Código inválido " + code);
 							}
 						}
 					} else {
-						operation = patron.porterRequestOperation(OperationTypeFormat.INSTANCE
+						operation = server.porterRequestOperation(OperationTypeFormat.INSTANCE
 								.parse(operationType), ctx);
 					}
 				}
@@ -98,7 +93,7 @@ public class PorterServlet extends HttpServlet {
 					if (inputValue != null) {
 						operation.reset();
 						operation.porterDo(action, inputValue);
-						operation = patron.porterIteracts(operation);
+						operation = server.porterIteracts(operation);
 					}
 				} else if (actionKey != null) {
 					Action action = operation.action(actionKey);
@@ -111,17 +106,17 @@ public class PorterServlet extends HttpServlet {
 						operation.porterDo(action, null);
 					}
 
-					operation = patron.porterIteracts(operation);
+					operation = server.porterIteracts(operation);
 				}
 			}
 
-			prepareView(request, operation, patron);
+			prepareView(request, operation);
 		}
 
-		request.getRequestDispatcher("/WEB-INF/template.jsp").forward(request, response);
+		request.getRequestDispatcher("/WEB-INF/porter.jsp").forward(request, response);
 	}
 
-	private void prepareView(HttpServletRequest request, Operation operation, PatronRemote patron)
+	private void prepareView(HttpServletRequest request, Operation operation)
 			throws RemoteException {
 		request.getSession().setAttribute("operation", operation);
 
@@ -152,9 +147,7 @@ public class PorterServlet extends HttpServlet {
 
 			request.setAttribute("buttons", buttons);
 		} else {
-			if (patron != null) {
-				request.setAttribute("operationTypes", patron.getOperationTypes());
-			}
+			request.setAttribute("operationTypes", OverseerServer.INSTANCE.getOperationTypes());
 		}
 	}
 

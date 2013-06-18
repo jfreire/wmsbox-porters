@@ -1,5 +1,6 @@
 package com.wmsbox.porters.patron;
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.wmsbox.porters.commons.OverseerRemote;
 import com.wmsbox.porters.commons.PatronRemote;
 
-//TODO ping
 public class OverseerConnector {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OverseerConnector.class);
@@ -22,7 +22,11 @@ public class OverseerConnector {
 	private final AtomicBoolean started = new AtomicBoolean(false);
 	private String host;
 	private int port;
+	private long pingPeriodInMillis;
 	private Thread thread;
+	private PatronRemote patronStub;
+	private OverseerRemote overseerStub;
+	private OverseerWorker worker;
 
 	public String getHost() {
 		return this.host;
@@ -40,60 +44,19 @@ public class OverseerConnector {
 		this.port = port;
 	}
 
-	public void start(final Patron patron) {
+	public long getPingPeriodInMillis() {
+		return pingPeriodInMillis;
+	}
+
+	public void setPingPeriodInMillis(long pingPeriodInMillis) {
+		this.pingPeriodInMillis = pingPeriodInMillis;
+	}
+
+	public void start(Patron patron) {
 		if (this.started.compareAndSet(false, true)) {
-			this.thread = new Thread(new Runnable() {
-				private boolean connected = false;
+			this.worker = new OverseerWorker(this, patron);
+			this.thread = new Thread(this.worker, this.worker.getClass().getSimpleName());
 
-				public void run() {
-					boolean previousError = false;
-
-					while (!this.connected) {
-						Exception exception = null;
-
-						try {
-							final Registry registry = LocateRegistry
-									.getRegistry(OverseerConnector.this.host,
-									OverseerConnector.this.port);
-							final Remote remote = registry.lookup(OverseerRemote.REMOTE_REFERENCE_NAME);
-							final OverseerRemote overseer = OverseerRemote.class.cast(remote);
-							PatronRemote patronRemote = new PatronRemoteImpl(patron, overseer);
-							PatronRemote stub = (PatronRemote) UnicastRemoteObject
-									.exportObject(patronRemote, 0);
-							overseer.register(stub);
-							this.connected = true;
-							LOGGER.info("Connected");
-							previousError = false;
-
-							synchronized (OverseerConnector.this.thread) {
-								OverseerConnector.this.thread.wait();
-								this.connected = false;
-								UnicastRemoteObject.unexportObject(stub, false);
-								LOGGER.info("Disconnected");
-							}
-						} catch (RemoteException e) {
-							exception = e;
-						} catch (NotBoundException e) {
-							exception = e;
-						} catch (InterruptedException e) {
-							OverseerConnector.this.thread.interrupt();
-						}
-
-						if (exception != null) {
-							if (!previousError) {
-								LOGGER.error(exception.getMessage());
-								previousError = true;
-							}
-
-							try {
-								Thread.sleep(5000);
-							} catch (InterruptedException e) {
-								OverseerConnector.this.thread.interrupt();
-							}
-						}
-					}
-				}
-			} );
 			this.thread.start();
 		}
 	}
@@ -108,6 +71,90 @@ public class OverseerConnector {
 
 		synchronized (OverseerConnector.this.thread) {
 			this.thread.notify();
+		}
+	}
+
+	private void connect(Patron patron) throws RemoteException, NotBoundException {
+		final Registry registry = LocateRegistry
+				.getRegistry(this.host, this.port);
+		final Remote remote = registry.lookup(OverseerRemote.REMOTE_REFERENCE_NAME);
+		this.overseerStub = OverseerRemote.class.cast(remote);
+		PatronRemote patronRemote = new PatronRemoteImpl(patron, this.overseerStub);
+		this.patronStub = (PatronRemote) UnicastRemoteObject
+				.exportObject(patronRemote, 0);
+		this.overseerStub.register(this.patronStub);
+		LOGGER.info("Connected");
+	}
+
+	private void unregister() throws NoSuchObjectException {
+		UnicastRemoteObject.unexportObject(this.patronStub, false);
+	}
+
+	private void ping() throws InterruptedException, RemoteException {
+		synchronized (this.worker) {
+			this.worker.wait(this.pingPeriodInMillis);
+		}
+
+		this.overseerStub.ping();
+	}
+
+	public static class OverseerWorker implements Runnable {
+
+		private final Patron patron;
+		private final OverseerConnector connector;
+		private boolean connected = false;
+
+		public OverseerWorker(OverseerConnector connector, Patron patron) {
+			this.patron = patron;
+			this.connector = connector;
+		}
+
+		public void run() {
+			boolean previousError = false;
+			Thread thread = Thread.currentThread();
+
+			try {
+				while (!thread.isInterrupted()) {
+					if (this.connected) {
+						try {
+							this.connector.ping();
+						} catch (RemoteException e) {
+							LOGGER.error(e.getMessage());
+							this.connected = false;
+						}
+					} else {
+						Exception exception = null;
+
+						try {
+							this.connector.connect(this.patron);
+							this.connected = true;
+							LOGGER.info("Connected");
+							previousError = false;
+						} catch (RemoteException e) {
+							exception = e;
+						} catch (NotBoundException e) {
+							exception = e;
+						}
+
+						if (exception != null) {
+							if (!previousError) {
+								LOGGER.error(exception.getMessage());
+								previousError = true;
+							}
+
+							Thread.sleep(5000);
+						}
+					}
+				}
+			} catch (InterruptedException e) {
+				thread.interrupt();
+			} finally {
+				try {
+					this.connector.unregister();
+				} catch (NoSuchObjectException e) {
+					// Nada
+				}
+			}
 		}
 	}
 }
