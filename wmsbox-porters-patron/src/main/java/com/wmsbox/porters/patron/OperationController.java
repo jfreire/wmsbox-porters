@@ -9,8 +9,7 @@ import com.wmsbox.porters.commons.OperationType;
 import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Button;
 import com.wmsbox.porters.commons.interaction.Confirm;
-import com.wmsbox.porters.commons.interaction.InputInteger;
-import com.wmsbox.porters.commons.interaction.InputString;
+import com.wmsbox.porters.commons.interaction.Input;
 import com.wmsbox.porters.commons.interaction.Message;
 
 public abstract class OperationController {
@@ -37,41 +36,56 @@ public abstract class OperationController {
 	 */
 	public abstract OperationController process() throws InterruptedException;
 
-	public final String inputString(String key) throws InterruptedException {
-		return (String) inputString(key, (String) null);
+	@SuppressWarnings("unchecked")
+	public final <T> T input(String key, InputType<T> type) throws InterruptedException {
+		return (T) inputOrChoice(key, type, null, (OptionKey[]) null);
 	}
 
-	public final Object inputString(String key, OptionKey... options) throws InterruptedException {
-		return inputString(key, null, options);
-	}
-
-	public final Object inputString(String key, String defaultValue, OptionKey... options)
+	@SuppressWarnings("unchecked")
+	public final <T> T input(String key, InputType<T> type, T defaultValue)
 			throws InterruptedException {
-		return input(new InputString(key, text(key), null), options);
-
+		return (T) inputOrChoice(key, type, defaultValue);
 	}
 
-	public final Object inputInteger(String key, OptionKey... options) throws InterruptedException {
-		return inputInteger(key, null, options);
-	}
-
-	public final Integer inputInteger(String key, Integer defaultValue) throws InterruptedException {
-		return (Integer) input(new InputInteger(key, text(key), null), null);
-	}
-
-	public final Object inputInteger(String key, Integer defaultValue, OptionKey... options)
+	public final <T> Object inputOrChoice(String key, InputType<T> type, OptionKey... options)
 			throws InterruptedException {
-		return input(new InputInteger(key, text(key), null), options);
+		return inputOrChoice(key, type, null, options);
 	}
 
-	private Object input(Action action, OptionKey[] options) throws InterruptedException {
+	public final <T> Object inputOrChoice(String key, InputType<T> type, T defaultValue,
+			OptionKey... options) throws InterruptedException {
 		Operation operation = this.operationThread.getOperation();
+		Object result = null;
+		String initialValue = defaultValue != null ? type.convert(defaultValue) : null;
+
+		while (result == null) {
+			Object temporalResult = innerInputOrChoice(key, type, initialValue, options);
+
+			if (temporalResult instanceof OptionKey) {
+				result = temporalResult;
+			} else {
+				result = type.convert((String) temporalResult);
+
+				if (result == null) {
+					initialValue = operation.getPorderDoValue();
+					error(type.name() + ".invalid", initialValue);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private final <T> Object innerInputOrChoice(String key, InputType<T> type, String initialValue,
+			OptionKey[] options) throws InterruptedException {
+		Operation operation = this.operationThread.getOperation();
+		Input input = new Input(key, text(key), type.name(), type.getMode(),  initialValue);
 
 		if (options == null) {
-			operation.request(action);
+			operation.request(input);
 		} else {
 			Action[] actions = new Action[options.length + 1];
-			actions[0] = action;
+			actions[0] = input;
 
 			for (int i = 0; i < options.length; i++) {
 				String optionKey = options[i].name();
@@ -96,6 +110,29 @@ public abstract class OperationController {
 				if (porterDo.getKey().equals(option.name())) {
 					return option;
 				}
+			}
+		}
+
+		return null;
+	}
+
+	public final OptionKey choice(OptionKey... options) throws InterruptedException {
+		Operation operation = this.operationThread.getOperation();
+		Action[] actions = new Action[options.length];
+
+		for (int i = 0; i < options.length; i++) {
+			String optionKey = options[i].name();
+			actions[i] = new Button(optionKey, text(optionKey));
+		}
+
+		operation.request(actions);
+		operation = this.operationThread.requestIteration();
+
+		Action porterDo = operation.getPorterDo();
+
+		for (OptionKey option : options) {
+			if (porterDo.getKey().equals(option.name())) {
+				return option;
 			}
 		}
 
@@ -127,7 +164,7 @@ public abstract class OperationController {
 				operation.getContext().getLocale(), getClass().getClassLoader());
 
 		String text;
-		
+
 		try {
 			text = rb.getString(this.type + "." + key);
 		} catch (MissingResourceException e) {

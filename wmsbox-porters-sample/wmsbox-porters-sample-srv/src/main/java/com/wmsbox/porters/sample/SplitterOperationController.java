@@ -2,8 +2,10 @@ package com.wmsbox.porters.sample;
 
 import com.wmsbox.porters.commons.OperationType;
 import com.wmsbox.porters.commons.OperationTypeFormat;
+import com.wmsbox.porters.patron.NumberInputType;
 import com.wmsbox.porters.patron.OperationController;
 import com.wmsbox.porters.patron.OptionKey;
+import com.wmsbox.porters.patron.StringInputType;
 
 
 public class SplitterOperationController extends OperationController {
@@ -65,7 +67,7 @@ public class SplitterOperationController extends OperationController {
 				containerLabel = this.sourceLabel;
 				this.sourceLabel = null;
 			} else {
-				containerLabel = inputString("container");
+				containerLabel = input("container", StringInputType.DIGITS);
 			}
 
 			//findContaienr solicitará SICR si hace falta y esperar 0's o el tiempo configurado.
@@ -114,7 +116,7 @@ public class SplitterOperationController extends OperationController {
 
 		while (units == null) {
 			//TODO opción de contenido invalido => Cancelar tarea actual e invocar la de modificación de pusto de rechazo
-			int enteredUnits = inputInteger("units", defaultUnits);
+			int enteredUnits = input("units", NumberInputType.POSITIVE_NOT_ZERO, defaultUnits);
 
 			if (enteredUnits > garmentsPerMeter * 2) { //TODO margen configurable
 				if (confirm("units.tooMuch", enteredUnits)) {
@@ -133,7 +135,7 @@ public class SplitterOperationController extends OperationController {
 		String label = null;
 
 		while (label == null) {
-			Object result = inputString("target", Option.LAST);
+			Object result = inputOrChoice("target", StringInputType.DIGITS, Option.LAST);
 
 			if (result == Option.LAST) {
 				return null;

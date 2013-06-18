@@ -39,22 +39,28 @@
                     <label for="password">Password</label>
                     <input name="password" type="password" />
                     <div class="buttons">
-                        <button name="button" value="login">Acceder</button>
+                        <input type="submit" class="button" name="login" value="Acceder" />
                     </div>
                 </form>
             </c:if>
             <c:if test="${sessionScope.porter != null && sessionScope.operation == null}">
+                <c:if test="${endMessage != null}">
+                    <div id="endMessage">${endMessage.text}</div>
+                </c:if>
                 <form method="post">
                     <c:if test="${error != null}">
                         <div class="error">${error}</div>
                     </c:if>
+                    <c:if test="${sessionScope.operation.error != null}">
+                        <div class="error">${sessionScope.operation.error.text}</div>
+                    </c:if>
                     <ul id="operations">
                         <c:forEach var="operationType" items="${operationTypes}">
-                            <li><button name="operationType" value="${operationType}">${operationType}</button></li>
+                            <li><input type="submit" class="button" name="operationType" value="${operationType}" /></li>
                         </c:forEach>
                     </ul>
                     <input name="code" type="text" autofocus="true" />
-                    <button name="operationType" value="search">&gt;</button>
+                    <input type="submit" class="button" name="operationType" value="&gt;" />
                 </form>
             </c:if>
             <c:if test="${sessionScope.operation != null}">
@@ -63,35 +69,38 @@
                         <div class="blockInfo">${info.text}</div>
                     </c:forEach>
                 </div>
+                <c:if test="${endMessage != null}">
+                    <div id="endMessage">${endMessage.text}</div>
+                </c:if>
                 <form method="post">
                     <c:if test="${sessionScope.operation.error != null}">
                         <div class="error">${sessionScope.operation.error.text}</div>
                     </c:if>
-                    <c:if test="${inputLabel != null}">
-                        <label for="input">${inputLabel}</label>
-                        <c:if test="${inputMode == 'integer'}">
+                    <c:if test="${input != null}">
+                        <label for="input">${input.text}</label>
+                        <c:if test="${input.mode == 'NUMBER'}">
                             <button onclick="document.forms[0].input.value--; return false;">-</button>
-                            <input name="input" autofocus="true" class="integer" size="8" value="${inputDefaultValue}"/>
+                            <input name="input" autofocus="true" class="integer" size="8" value="${input.initialValue}"/>
                             <button onclick="document.forms[0].input.value++; return false;">+</button>
                         </c:if>
-                        <c:if test="${inputMode != 'integer'}">
-                            <input name="input" autofocus="true" value="${inputDefaultValue}"/>
+                        <c:if test="${input.mode != 'NUMBER'}">
+                            <input name="input" autofocus="true" value="${input.initialValue}"/>
                         </c:if>
-                        <input name="inputKey" type="hidden" value="${inputKey}"/>
-                        <button name="actionKey" value="input">&gt;</button>
+                        <input name="inputKey" type="hidden" value="${input.key}" />
+                        <input type="submit" class="button" name="inputButton" value="&gt;" />
                     </c:if>
-                    <c:if test="${confirmText != null}">
-                        <div class="confirm">${confirmText}</div>
+                    <c:if test="${confirm != null}">
+                        <div class="confirm">${confirm.text}</div>
                         <div class="buttons">
-                            <input name="actionKey" type="hidden" value="${confirmKey}"/>
-                            <button name="confirm" value="si">SI</button>
-                            <button name="confirm" value="no">NO</button>
+                            <input name="actionKey" type="hidden" value="${confirm.key}"/>
+                            <input type="submit" class="button" name="confirm" value="SI" />
+                            <input type="submit" class="button" name="confirm" value="NO" />
                         </div>
                     </c:if>
                     <c:if test="${confirmText == null}">
                         <div class="buttons">
                             <c:forEach var="button" items="${buttons}">
-                                <button name="actionKey" value="${button.key}">${button.text}</button>
+                                <input type="submit" class="button" name="actionKey" value="${button.text}" />
                             </c:forEach>
                         </div>
                     </c:if>

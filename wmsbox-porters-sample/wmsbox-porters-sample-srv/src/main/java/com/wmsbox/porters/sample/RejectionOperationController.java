@@ -3,6 +3,7 @@ package com.wmsbox.porters.sample;
 import com.wmsbox.porters.commons.OperationType;
 import com.wmsbox.porters.commons.OperationTypeFormat;
 import com.wmsbox.porters.patron.OperationController;
+import com.wmsbox.porters.patron.StringInputType;
 
 
 public class RejectionOperationController extends OperationController {
@@ -28,7 +29,7 @@ public class RejectionOperationController extends OperationController {
 		info(1, "container.label", container.getLabel());
 		info(2, "container.position", container.getPosition());
 		info(3, "container.content", container.getSku(), totalUnits);
-		
+
 		readContainer(); //TODO
 
 		return null;
@@ -39,14 +40,14 @@ public class RejectionOperationController extends OperationController {
 
 		while (result == null) {
 			String containerLabel;
-			
+
 			if (this.label != null) {
 				containerLabel = this.label;
 				this.label = null;
 			} else {
-				containerLabel = inputString("container");
+				containerLabel = input("container", StringInputType.DIGITS);
 			}
-			
+
 			Container container = ContainerRepo.INSTANCE.findContainer(containerLabel);
 
 			if (container == null) {
@@ -56,7 +57,7 @@ public class RejectionOperationController extends OperationController {
 					//TODO
 				}
 			}
-			
+
 			if (container.getPosition().equals(ContainerRepo.RECH)) {
 				//TODO si no es el primero de la barra??
 				result = container;

@@ -1,6 +1,5 @@
 package com.wmsbox.porters.commons;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,9 +18,10 @@ public class Operation extends Base {
 	private OperationState state;
 	private Message error;
 	private Message endMessage;
+	private Message previousEndMessage;
 	private Action[] possibleActions;
 	private Action porterDo;
-	private Serializable porderDoValue;
+	private String porderDoValue;
 	private long lastPorterActivityTime;
 
 	public Operation(long id, OperationType type, Context context) {
@@ -55,23 +55,21 @@ public class Operation extends Base {
 	public Message getError() {
 		return this.error;
 	}
-	
+
 	public Message getEndMessage() {
 		return this.endMessage;
 	}
 
-	public Action[] getPossibleActions() {
-		return this.possibleActions;
+	public Message getPreviousEndMessage() {
+		return this.previousEndMessage;
 	}
 
-	public Action action(String actionKey) {
-		for (Action action : this.possibleActions) {
-			if (action.getKey().equals(actionKey)) {
-				return action;
-			}
-		}
+	public void setPreviousEndMessage(Message previousEndMessage) {
+		this.previousEndMessage = previousEndMessage;
+	}
 
-		return null;
+	public Action[] getPossibleActions() {
+		return this.possibleActions;
 	}
 
 	public OperationType getType() {
@@ -82,11 +80,11 @@ public class Operation extends Base {
 		return this.porterDo;
 	}
 
-	public Serializable getPorderDoValue() {
+	public String getPorderDoValue() {
 		return this.porderDoValue;
 	}
 
-	public void porterDo(Action action, Serializable value) {
+	public void porterDo(Action action, String value) {
 		System.out.println("------------porterDo " + action + " - " + value);
 		this.lastPorterActivityTime = System.currentTimeMillis();
 		this.porterDo = action;
@@ -98,6 +96,7 @@ public class Operation extends Base {
 		this.porterDo = null;
 		this.error = null;
 		this.possibleActions = null;
+		this.previousEndMessage = null;
 	}
 
 	public void info(int index, Message message) {

@@ -168,7 +168,7 @@ div.buttons {
 	padding-bottom : 0.5em
 }
 
-button {
+.button {
   display: inline-block;
   *display: inline;
   padding: 4px 12px;
@@ -203,8 +203,8 @@ button {
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-button:hover,
-button:focus {
+.button:hover,
+.button:focus {
   color: #ffffff;
   text-decoration: none;
   background-color: #0044cc;
@@ -216,14 +216,14 @@ button:focus {
           transition: background-position 0.1s linear;
 }
 
-button:focus {
+.button:focus {
   outline: thin dotted #333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
 
-button.active,
-button:active {
+.button.active,
+.button:active {
   background-color: #003399 \9;
   background-image: none;
   outline: 0;

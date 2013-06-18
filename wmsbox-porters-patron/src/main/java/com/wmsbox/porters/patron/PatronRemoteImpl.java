@@ -38,10 +38,11 @@ public class PatronRemoteImpl implements PatronRemote {
 			OperationController nextController = taskThread.getNextController();
 			this.operations.remove(operation.getId());
 
-			if (nextController == null) {
-				return null;
-			} else {
-				operation = startTask(nextController, operation.getContext());
+			if (nextController != null) {
+				Operation newOperation = startTask(nextController, operation.getContext());
+				newOperation.setPreviousEndMessage(operation.getEndMessage());
+
+				return newOperation;
 			}
 		}
 
@@ -76,7 +77,10 @@ public class PatronRemoteImpl implements PatronRemote {
 
 	public void cancel(Operation operation) throws RemoteException {
 		OperationThread operationThread = this.operations.get(operation.getId());
-		operationThread.cancel();
+
+		if (operationThread != null) {
+			operationThread.cancel();
+		}
 	}
 
 	public void ping() throws RemoteException {

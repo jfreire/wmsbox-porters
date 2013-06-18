@@ -1,7 +1,6 @@
 package com.wmsbox.porters.overseer;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +18,7 @@ import com.wmsbox.porters.commons.OperationTypeFormat;
 import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Button;
 import com.wmsbox.porters.commons.interaction.Confirm;
-import com.wmsbox.porters.commons.interaction.InputInteger;
-import com.wmsbox.porters.commons.interaction.InputString;
-import com.wmsbox.porters.commons.interaction.Message;
+import com.wmsbox.porters.commons.interaction.Input;
 
 public class PorterServlet extends HttpServlet {
 
@@ -72,41 +69,29 @@ public class PorterServlet extends HttpServlet {
 					}
 				}
 			} else {
-				String actionKey = request.getParameter("actionKey");
-				String input = request.getParameter("input");
+				Action action = action(request, operation);
 
-				if (input != null && (actionKey == null || actionKey.equals("input"))) {
-					Action action = operation.action(request.getParameter("inputKey"));
-					Serializable inputValue = null;
-
-					if (action instanceof InputInteger) {
-						try {
-							inputValue = Integer.parseInt(input);
-						} catch (Throwable e) {
-							operation.error(new Message("inputIntegerWrong",
-									"Numero incorrecto " + input));
-						}
-					} else {
-						inputValue = input;
-					}
-
-					if (inputValue != null) {
-						operation.reset();
-						operation.porterDo(action, inputValue);
-						operation = server.porterIteracts(operation);
-					}
-				} else if (actionKey != null) {
-					Action action = operation.action(actionKey);
+				if (action != null) {
 					operation.reset();
 
-					if (action instanceof Confirm) {
-						String confirm = request.getParameter("confirm");
-						operation.porterDo(action, "si".equals(confirm));
+					if (action instanceof Input) {
+						operation.porterDo(action, request.getParameter("input"));
+					} else if (action instanceof Confirm) {
+						operation.porterDo(action, "SI".equals(request.getParameter("confirm"))
+								? "true" : "false");
 					} else {
 						operation.porterDo(action, null);
 					}
 
 					operation = server.porterIteracts(operation);
+
+					if (!operation.getState().isLive()) {
+						request.setAttribute("endMessage", operation.getEndMessage());
+						operation = null;
+					} else if (operation.getPreviousEndMessage() != null) {
+						request.setAttribute("endMessage", operation.getPreviousEndMessage());
+						operation.setPreviousEndMessage(null);
+					}
 				}
 			}
 
@@ -114,6 +99,22 @@ public class PorterServlet extends HttpServlet {
 		}
 
 		request.getRequestDispatcher("/WEB-INF/porter.jsp").forward(request, response);
+	}
+
+	private Action action(HttpServletRequest request, Operation operation) {
+		String actionKey = request.getParameter("actionKey");
+
+		if (actionKey == null) {
+			actionKey = request.getParameter("inputKey");
+		}
+
+		for (Action action : operation.getPossibleActions()) {
+			if (action.getText().equals(actionKey) || action.getKey().equals(actionKey)) {
+				return action;
+			}
+		}
+
+		return null;
 	}
 
 	private void prepareView(HttpServletRequest request, Operation operation)
@@ -128,18 +129,10 @@ public class PorterServlet extends HttpServlet {
 			List<Button> buttons = new ArrayList<Button>();
 
 			for (Action action : operation.getPossibleActions()) {
-				if (action instanceof InputString) {
-					request.setAttribute("inputLabel", action.getText());
-					request.setAttribute("inputKey", action.getKey());
-					request.setAttribute("inputDefaultValue", ((InputString) action).getDefaultValue());
-				} else if (action instanceof InputInteger) {
-					request.setAttribute("inputMode", "integer");
-					request.setAttribute("inputLabel", action.getText());
-					request.setAttribute("inputKey", action.getKey());
-					request.setAttribute("inputDefaultValue", ((InputInteger) action).getDefaultValue());
+				if (action instanceof Input) {
+					request.setAttribute("input", action);
 				} else if (action instanceof Confirm) {
-					request.setAttribute("confirmText", action.getText());
-					request.setAttribute("confirmKey", action.getKey());
+					request.setAttribute("confirm", action);
 				} else {
 					buttons.add((Button) action);
 				}
