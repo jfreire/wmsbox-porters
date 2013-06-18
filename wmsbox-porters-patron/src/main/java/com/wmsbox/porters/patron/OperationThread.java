@@ -50,12 +50,14 @@ class OperationThread implements Runnable {
 	public void run() {
 		try {
 			this.nextController = this.controller.process();
-			this.operation.completed();
+			
+			if (this.operation.getState().isLive()) {
+				this.operation.completed(null);
+			}
 		} catch (InterruptedException e) {
 			this.thread.interrupt();
 		} catch (Exception e) {
-			this.operation.cancelByPatron();
-			//TODO enviar error
+			this.operation.cancelByPatron(null); //TODO enviar error
 		} finally {
 			this.connectionLock.end();
 		}

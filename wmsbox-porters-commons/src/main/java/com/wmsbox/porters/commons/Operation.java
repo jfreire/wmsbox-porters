@@ -18,6 +18,7 @@ public class Operation extends Base {
 	private final OperationType type;
 	private OperationState state;
 	private Message error;
+	private Message endMessage;
 	private Action[] possibleActions;
 	private Action porterDo;
 	private Serializable porderDoValue;
@@ -53,6 +54,10 @@ public class Operation extends Base {
 
 	public Message getError() {
 		return this.error;
+	}
+	
+	public Message getEndMessage() {
+		return this.endMessage;
 	}
 
 	public Action[] getPossibleActions() {
@@ -110,24 +115,27 @@ public class Operation extends Base {
 		this.possibleActions = possibleActions;
 	}
 
-	public void cancelByPatron() {
+	public void cancelByPatron(Message message) {
 		if (this.state.isLive()) {
+			this.endMessage = message;
 			this.state = OperationState.CANCELED_BY_PATRON;
 		} else {
 			throw new IllegalStateException();
 		}
 	}
 
-	public void cancelByPorter() {
+	public void cancelByPorter(Message message) {
 		if (this.state.isLive()) {
+			this.endMessage = message;
 			this.state = OperationState.CANCELED_BY_PORTER;
 		} else {
 			throw new IllegalStateException();
 		}
 	}
 
-	public void completed() {
+	public void completed(Message message) {
 		checkProcessingState();
+		this.endMessage = message;
 		this.state = OperationState.COMPLETED;
 	}
 

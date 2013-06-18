@@ -141,6 +141,11 @@ public abstract class OperationController {
 		return text;
 	}
 
+	public void completed(String key, Object... params) {
+		Operation operation = this.operationThread.getOperation();
+		operation.completed(new Message(key, text(key, params)));
+	}
+
 	private String text(String key, Object[] params) {
 		return MessageFormat.format(text(key), params);
 	}

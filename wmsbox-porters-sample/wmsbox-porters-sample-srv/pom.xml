@@ -12,11 +12,6 @@
 	<name>wmsbox-porters-sample-srv</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
-		<dependency>
-			<groupId>com.wmsbox.porters.sample</groupId>
-			<artifactId>wmsbox-porters-sample-model</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
         <dependency>
             <groupId>com.wmsbox.porters</groupId>
             <artifactId>wmsbox-porters-patron</artifactId>

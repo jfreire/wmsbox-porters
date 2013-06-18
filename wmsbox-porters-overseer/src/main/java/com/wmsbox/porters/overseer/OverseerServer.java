@@ -108,7 +108,7 @@ public class OverseerServer implements OverseerRemote {
 
 	public void cancel(Operation operation) {
 		LOGGER.info("Cancelando ..... {} ", operation.getId());
-		operation.cancelByPatron();
+		operation.cancelByPatron(null);
 
 		try {
 			this.patron.cancel(operation);

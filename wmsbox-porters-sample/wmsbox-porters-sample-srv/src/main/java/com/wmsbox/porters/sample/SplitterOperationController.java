@@ -94,7 +94,6 @@ public class SplitterOperationController extends OperationController {
 				}
 			} else if (confirm("container.confirmInBar", containerLabel, container.getPosition())) {
 				container.setPosition(ContainerRepo.SPLITTER);
-				//Preguntar barra y NO mover contenedores a null. Poner este como mas antiguo.
 
 				//TODO solicitar barra,
 				// No mover contenedores de la barra a null.

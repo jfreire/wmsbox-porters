@@ -22,7 +22,7 @@ public class OverseerConnector {
 	private final AtomicBoolean started = new AtomicBoolean(false);
 	private String host;
 	private int port;
-	private long pingPeriodInMillis;
+	private long pingPeriodInMillis = 1000;
 	private Thread thread;
 	private PatronRemote patronStub;
 	private OverseerRemote overseerStub;
@@ -128,7 +128,6 @@ public class OverseerConnector {
 						try {
 							this.connector.connect(this.patron);
 							this.connected = true;
-							LOGGER.info("Connected");
 							previousError = false;
 						} catch (RemoteException e) {
 							exception = e;
