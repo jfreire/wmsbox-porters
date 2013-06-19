@@ -4,7 +4,7 @@ import com.wmsbox.porters.commons.interaction.InputMode;
 
 public enum NumberInputType implements InputType<Integer> {
 	NATURAL {
-		public Integer convert(String value) {
+		public Integer toType(String value) {
 			try {
 				return Integer.valueOf(value);
 			} catch (NumberFormatException e) {
@@ -13,7 +13,7 @@ public enum NumberInputType implements InputType<Integer> {
 		}
 	},
 	POSITIVE_NOT_ZERO {
-		public Integer convert(String value) {
+		public Integer toType(String value) {
 			try {
 				int num = Integer.parseInt(value);
 
@@ -24,7 +24,7 @@ public enum NumberInputType implements InputType<Integer> {
 		}
 	};
 
-	public String convert(Integer value) {
+	public String toString(Integer value) {
 		return value.toString();
 	}
 

@@ -8,7 +8,7 @@ public interface InputType<T> {
 
 	InputMode getMode();
 
-	T convert(String value);
+	T toType(String value);
 
-	String convert(T value);
+	String toString(T value);
 }

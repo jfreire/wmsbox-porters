@@ -56,7 +56,7 @@ public abstract class OperationController {
 			OptionKey... options) throws InterruptedException {
 		Operation operation = this.operationThread.getOperation();
 		Object result = null;
-		String initialValue = defaultValue != null ? type.convert(defaultValue) : null;
+		String initialValue = defaultValue != null ? type.toString(defaultValue) : null;
 
 		while (result == null) {
 			Object temporalResult = innerInputOrChoice(key, type, initialValue, options);
@@ -64,7 +64,7 @@ public abstract class OperationController {
 			if (temporalResult instanceof OptionKey) {
 				result = temporalResult;
 			} else {
-				result = type.convert((String) temporalResult);
+				result = type.toType((String) temporalResult);
 
 				if (result == null) {
 					initialValue = operation.getPorderDoValue();
@@ -181,6 +181,11 @@ public abstract class OperationController {
 	public void completed(String key, Object... params) {
 		Operation operation = this.operationThread.getOperation();
 		operation.completed(new Message(key, text(key, params)));
+	}
+	
+	public void canceled(String key, Object... params) {
+		Operation operation = this.operationThread.getOperation();
+		operation.cancelByPatron(new Message(key, text(key, params)));
 	}
 
 	private String text(String key, Object[] params) {

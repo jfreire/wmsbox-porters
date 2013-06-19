@@ -4,14 +4,12 @@ import com.wmsbox.porters.commons.interaction.InputMode;
 
 public enum StringInputType implements InputType<String> {
 	ANY {
-		@Override
-		public String convert(String value) {
+		public String toType(String value) {
 			return value;
 		}
 	},
 	DIGITS {
-		@Override
-		public String convert(String value) {
+		public String toType(String value) {
 			for (int i = 0; i < value.length(); i++) {
 				if (!Character.isDigit(value.charAt(i))) {
 					return null;
@@ -22,7 +20,7 @@ public enum StringInputType implements InputType<String> {
 		}
 	};
 
-	public String convert(String value) {
+	public String toString(String value) {
 		return value;
 	}
 
