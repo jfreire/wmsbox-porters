@@ -50,23 +50,22 @@ public class PorterServlet extends HttpServlet {
 			}
 
 			if (operation == null) {
-				String operationType = request.getParameter("operationType");
+				String search = request.getParameter("search");
+				
+				if (search != null) {
+					String code = request.getParameter("code");
 
-				if (operationType != null) {
-					if ("search".equals(operationType)) {
-						String code = request.getParameter("code");
+					if (code != null) {
+						operation = server.porterRequestOperation(code, ctx);
 
-						if (code != null) {
-							operation = server.porterRequestOperation(code, ctx);
-
-							if (operation == null) {
-								request.setAttribute("error", "Código inválido " + code);
-							}
+						if (operation == null) {
+							request.setAttribute("error", "Código inválido " + code);
 						}
-					} else {
-						operation = server.porterRequestOperation(OperationTypeFormat.INSTANCE
-								.parse(operationType), ctx);
 					}
+				} else {
+					String operationType = request.getParameter("operationType");
+					operation = server.porterRequestOperation(OperationTypeFormat.INSTANCE
+							.parse(operationType), ctx);
 				}
 			} else {
 				Action action = action(request, operation);

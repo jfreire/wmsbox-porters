@@ -60,7 +60,7 @@
                         </c:forEach>
                     </ul>
                     <input name="code" type="text" autofocus="true" />
-                    <input type="submit" class="button" name="operationType" value="&gt;" />
+                    <input type="submit" class="button" name="search" value="&gt;" />
                 </form>
             </c:if>
             <c:if test="${sessionScope.operation != null}">
