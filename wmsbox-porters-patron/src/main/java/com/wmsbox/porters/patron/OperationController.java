@@ -57,7 +57,7 @@ public abstract class OperationController {
 		Operation operation = this.operationThread.getOperation();
 		Object result = null;
 		String initialValue = defaultValue != null ? type.toString(defaultValue) : null;
-
+		System.out.println("====> inputOrChoice " + key + " - " + result);
 		while (result == null) {
 			Object temporalResult = innerInputOrChoice(key, type, initialValue, options);
 
@@ -80,8 +80,8 @@ public abstract class OperationController {
 			OptionKey[] options) throws InterruptedException {
 		Operation operation = this.operationThread.getOperation();
 		Input input = new Input(key, text(key), type.name(), type.getMode(),  initialValue);
-
-		if (options == null) {
+System.out.println("====> innerInputOrChoice " + input + " - " + options);
+		if (options == null || options.length == 0) {
 			operation.request(input);
 		} else {
 			Action[] actions = new Action[options.length + 1];
@@ -105,7 +105,7 @@ public abstract class OperationController {
 			return value;
 		}
 
-		if (options != null) {
+		if (options != null && options.length > 0) {
 			for (OptionKey option : options) {
 				if (porterDo.getKey().equals(option.name())) {
 					return option;

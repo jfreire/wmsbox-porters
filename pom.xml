@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.wmsbox</groupId>
@@ -52,6 +53,20 @@
 		<module>wmsbox-porters-patron</module>
 		<module>wmsbox-porters-overseer</module>
 		<module>wmsbox-porters-commons</module>
-    <module>wmsbox-porters-sample</module>
-  </modules>
+		<module>wmsbox-porters-sample</module>
+	</modules>
+
+	<distributionManagement>
+		<repository>
+			<name>Maven Nexus Repository STG</name>
+			<id>oesia-release-repository</id>
+			<url>http://10.238.2.11:9090/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>oesia-snapshot-repository</id>
+			<name>Maven Nexus Snapshot Repository STG</name>
+			<url>http://10.238.2.11:9090/nexus/content/repositories/snapshots/</url>
+			<uniqueVersion>true</uniqueVersion>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
