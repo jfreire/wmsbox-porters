@@ -27,16 +27,16 @@ public class SamplePatron implements Patron {
 
 	public OperationController porterRequestOperation(String code) {
 		Container container = ContainerRepo.INSTANCE.findContainer(code);
-		
+
 		if (container != null) {
 			if (container.getPosition().equals(ContainerRepo.SPLITTER)) {
-				return new SplitterOperationController(code);			
+				return new SplitterOperationController(code);
 			}
-			
+
 			return new RejectionOperationController(code);
+		} else {
+			return new IdentifyOperationController(code);
 		}
-		
-		return null;
 	}
 
 	public OperationController porterRequestOperation(OperationType type) {

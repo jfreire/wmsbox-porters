@@ -1,6 +1,7 @@
 package com.wmsbox.porters.patron;
 
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -159,9 +160,8 @@ System.out.println("====> innerInputOrChoice " + input + " - " + options);
 	}
 
 	private String text(String key) {
-		Operation operation = this.operationThread.getOperation();
-		ResourceBundle rb = ResourceBundle.getBundle("messages",
-				operation.getContext().getLocale(), getClass().getClassLoader());
+		ResourceBundle rb = ResourceBundle.getBundle("messages", locale(),
+				getClass().getClassLoader());
 
 		String text;
 
@@ -178,11 +178,17 @@ System.out.println("====> innerInputOrChoice " + input + " - " + options);
 		return text;
 	}
 
+	protected Locale locale() {
+		Operation operation = this.operationThread.getOperation();
+
+		return operation.getContext().getLocale();
+	}
+
 	public void completed(String key, Object... params) {
 		Operation operation = this.operationThread.getOperation();
 		operation.completed(new Message(key, text(key, params)));
 	}
-	
+
 	public void canceled(String key, Object... params) {
 		Operation operation = this.operationThread.getOperation();
 		operation.cancelByPatron(new Message(key, text(key, params)));
