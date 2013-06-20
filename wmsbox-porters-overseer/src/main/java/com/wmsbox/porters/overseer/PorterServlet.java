@@ -30,22 +30,22 @@ public class PorterServlet extends HttpServlet {
 		Context ctx = context(request);
 
 		if (ctx != null) {
-			String navOption = request.getParameter("nav");
 			HttpSession session = request.getSession();
 			Operation operation = (Operation) session.getAttribute("operation");
 			OverseerServer server = OverseerServer.INSTANCE;
 
-			if (navOption != null && navOption.length() > 0) {
-				if (navOption.equals("logout")) {
-					session.invalidate();
-				} else if (navOption.equals("cancel")) {
-					if (operation != null) {
-						OverseerServer.INSTANCE.cancel(operation);
-						session.removeAttribute("operation");
-					}
-				}
-
+			if (request.getParameter("cancel") != null) {
+				OverseerServer.INSTANCE.cancel(operation);
+				session.removeAttribute("operation");
 				response.sendRedirect(request.getRequestURI());
+				
+				return;
+			}
+			
+			if (request.getParameter("logout") != null) {
+				session.invalidate();
+				response.sendRedirect(request.getRequestURI());
+				
 				return;
 			}
 

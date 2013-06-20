@@ -68,8 +68,10 @@ public class OverseerServer implements OverseerRemote {
 
 	public Operation porterIteracts(Operation operation) throws RemoteException {
 		if (this.patron != null) {
+			long oldId = operation.getId();
 			operation = this.patron.porterIteracts(operation);
-
+			this.operations.remove(oldId);
+			
 			if (operation != null) {
 				this.operations.put(operation.getId(), operation);
 			}
@@ -108,13 +110,13 @@ public class OverseerServer implements OverseerRemote {
 
 	public void cancel(Operation operation) {
 		LOGGER.info("Cancelando ..... {} ", operation.getId());
+		this.operations.remove(operation.getId());
 		operation.cancelByPatron(null);
 
 		try {
 			this.patron.cancel(operation);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error canceling " + operation.getId(), e);
 		}
 	}
 

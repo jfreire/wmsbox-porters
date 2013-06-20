@@ -67,7 +67,8 @@ public class PatronRemoteImpl implements PatronRemote {
 
 	private Operation startTask(OperationController controller, Context ctx) throws RemoteException {
 		Operation operation = this.overseer.createOperation(controller.getType(), ctx);
-		OperationThread thread = new OperationThread(controller, operation);
+		OperationThread thread = new OperationThread(controller, operation, 
+				this.patron.getResourcesFile());
 		this.operations.put(operation.getId(), thread);
 		operation.goToProcess();
 		thread.start();

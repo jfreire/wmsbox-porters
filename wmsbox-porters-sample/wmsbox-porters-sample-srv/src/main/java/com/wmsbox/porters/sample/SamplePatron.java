@@ -53,4 +53,8 @@ public class SamplePatron implements Patron {
 		connector.setPort(8888);
 		connector.start(new SamplePatron());
 	}
+
+	public String getResourcesFile() {
+		return "messages";
+	}
 }

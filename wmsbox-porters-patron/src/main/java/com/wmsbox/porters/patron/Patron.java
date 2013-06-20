@@ -8,6 +8,8 @@ public interface Patron {
 
 	String getKey();
 
+	String getResourcesFile();
+	
 	List<OperationType> getOperationTypes();
 
 	OperationController porterRequestOperation(String code);

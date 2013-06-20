@@ -2,20 +2,28 @@ package com.wmsbox.porters.patron;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wmsbox.porters.commons.Operation;
 
 class OperationThread implements Runnable {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(OperationThread.class);
 
 	private final OperationController controller;
 	private final ToReadyLock controllerLock = new ToReadyLock();
 	private final ToReadyLock connectionLock = new ToReadyLock();
 	private OperationController nextController;
 	private Operation operation;
+	private final String resourcesFile;
 	private Thread thread;
 
-	public OperationThread(OperationController controller, Operation operation) {
+	public OperationThread(OperationController controller, Operation operation,
+			String resourcesFile) {
 		this.controller = controller;
 		this.operation = operation;
+		this.resourcesFile = resourcesFile;
 		controller.init(this);
 	}
 
@@ -35,7 +43,7 @@ class OperationThread implements Runnable {
 	}
 
 	public void interactReturn(Operation operation) {
-		System.out.println("interactReturn " + operation);
+		LOGGER.debug("interactReturn {}");
 		this.operation = operation;
 		
 		try {
@@ -44,7 +52,7 @@ class OperationThread implements Runnable {
 			this.thread.interrupt();
 		}
 		
-		System.out.println("interactReturn End " + operation);
+		LOGGER.debug("interactReturn End {}", operation);
 	}
 
 	public void run() {
@@ -64,12 +72,12 @@ class OperationThread implements Runnable {
 	}
 
 	public void cancel() {
-		System.out.println("Cancel " + Arrays.toString(this.thread.getStackTrace()));
+		LOGGER.debug("Cancel ", Arrays.toString(this.thread.getStackTrace()));
 		this.thread.interrupt();
 	}
 
 	public Operation requestIteration() throws InterruptedException {
-		System.out.println("requestIteration " + this.operation);
+		LOGGER.debug("requestIteration " + this.operation);
 		this.controllerLock.readyAndWaitToReady(this.connectionLock);
 
 		return this.operation;
@@ -77,5 +85,9 @@ class OperationThread implements Runnable {
 
 	public OperationController getNextController() {
 		return this.nextController;
+	}
+
+	public String getResourcesFile() {
+		return resourcesFile;
 	}
 }

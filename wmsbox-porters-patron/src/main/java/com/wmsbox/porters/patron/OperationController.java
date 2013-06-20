@@ -58,7 +58,7 @@ public abstract class OperationController {
 		Operation operation = this.operationThread.getOperation();
 		Object result = null;
 		String initialValue = defaultValue != null ? type.toString(defaultValue) : null;
-		System.out.println("====> inputOrChoice " + key + " - " + result);
+
 		while (result == null) {
 			Object temporalResult = innerInputOrChoice(key, type, initialValue, options);
 
@@ -81,7 +81,7 @@ public abstract class OperationController {
 			OptionKey[] options) throws InterruptedException {
 		Operation operation = this.operationThread.getOperation();
 		Input input = new Input(key, text(key), type.name(), type.getMode(),  initialValue);
-System.out.println("====> innerInputOrChoice " + input + " - " + options);
+
 		if (options == null || options.length == 0) {
 			operation.request(input);
 		} else {
@@ -102,7 +102,6 @@ System.out.println("====> innerInputOrChoice " + input + " - " + options);
 		Object value = operation.getPorderDoValue();
 
 		if (value != null) {
-			System.out.println("----> Value " + value);
 			return value;
 		}
 
@@ -144,9 +143,10 @@ System.out.println("====> innerInputOrChoice " + input + " - " + options);
 		Operation operation = this.operationThread.getOperation();
 		operation.request(new Confirm(key, text(key, params)));
 		operation = this.operationThread.requestIteration();
+		System.out.println("ConfirmResult " + operation.getPorderDoValue());
 
-		return operation.getPorderDoValue() != null ? Boolean.TRUE.equals(operation.getPorderDoValue())
-				: false;
+		return operation.getPorderDoValue() != null 
+				? Boolean.parseBoolean(operation.getPorderDoValue()) : false;
 	}
 
 	public final void error(String key, Object... params) {
@@ -160,8 +160,8 @@ System.out.println("====> innerInputOrChoice " + input + " - " + options);
 	}
 
 	private String text(String key) {
-		ResourceBundle rb = ResourceBundle.getBundle("messages", locale(),
-				getClass().getClassLoader());
+		ResourceBundle rb = ResourceBundle.getBundle(this.operationThread.getResourcesFile(),
+				locale());
 
 		String text;
 
@@ -186,7 +186,8 @@ System.out.println("====> innerInputOrChoice " + input + " - " + options);
 
 	public void completed(String key, Object... params) {
 		Operation operation = this.operationThread.getOperation();
-		operation.completed(new Message(key, text(key, params)));
+		
+		operation.completed(key != null ? new Message(key, text(key, params)) : null);
 	}
 
 	public void canceled(String key, Object... params) {
