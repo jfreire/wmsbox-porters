@@ -2,7 +2,10 @@ package com.wmsbox.porters.commons;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Message;
@@ -23,6 +26,7 @@ public class Operation extends Base {
 	private Action porterDo;
 	private String porderDoValue;
 	private long lastPorterActivityTime;
+	private final Set<String> tags = new HashSet<String>();
 
 	public Operation(long id, OperationType type, Context context) {
 		this.id = id;
@@ -85,7 +89,6 @@ public class Operation extends Base {
 	}
 
 	public void porterDo(Action action, String value) {
-		System.out.println("------------porterDo " + action + " - " + value);
 		this.lastPorterActivityTime = System.currentTimeMillis();
 		this.porterDo = action;
 		this.porderDoValue = value;
@@ -101,7 +104,13 @@ public class Operation extends Base {
 
 	public void info(int index, Message message) {
 		checkProcessingState();
-		this.messages.add(message);
+		
+		if (this.messages.size() > index) {
+			this.messages.set(index, message);
+		} else {
+			//TODO revisar
+			this.messages.add(message);
+		}
 	}
 
 	public void error(Message message) {
@@ -150,6 +159,22 @@ public class Operation extends Base {
 		if (this.state != OperationState.PROCESSING) {
 			throw new IllegalStateException();
 		}
+	}
+	
+	public void addTag(String tag) {
+		this.tags.add(tag);
+	}
+	
+	public void removeTag(String tag) {
+		this.tags.remove(tag);
+	}
+	
+	public boolean hasTag(String tag) {
+		return this.tags.contains(tag);
+	}
+	
+	public Set<String> getTags() {
+		return Collections.unmodifiableSet(this.tags);
 	}
 
 	@Override

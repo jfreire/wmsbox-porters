@@ -69,7 +69,7 @@ public abstract class OperationController {
 
 				if (result == null) {
 					initialValue = operation.getPorderDoValue();
-					error(type.name() + ".invalid", initialValue);
+					error(key + ".invalid", initialValue);
 				}
 			}
 		}
@@ -158,8 +158,18 @@ public abstract class OperationController {
 		Operation operation = this.operationThread.getOperation();
 		operation.info(index, new Message(key, text(key, params)));
 	}
-
-	private String text(String key) {
+	
+	public void addTag(String tag) {
+		Operation operation = this.operationThread.getOperation();
+		operation.addTag(tag);
+	}
+	
+	public void removeTag(String tag) {
+		Operation operation = this.operationThread.getOperation();
+		operation.removeTag(tag);
+	}
+	
+	protected String text(String key) {
 		ResourceBundle rb = ResourceBundle.getBundle(this.operationThread.getResourcesFile(),
 				locale());
 
