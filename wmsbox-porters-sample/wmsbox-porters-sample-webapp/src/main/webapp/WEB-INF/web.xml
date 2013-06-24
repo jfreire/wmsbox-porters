@@ -1,43 +1,68 @@
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
           http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-          version="2.5">    
- 
-    <display-name>Porters Sample</display-name>
- 
-    <servlet>
-        <servlet-name>porter</servlet-name>
-        <servlet-class>com.wmsbox.porters.overseer.PorterServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    
-    <servlet>
-        <servlet-name>overseer</servlet-name>
-        <servlet-class>com.wmsbox.porters.overseer.OverseerServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    
-    <servlet-mapping>
-        <servlet-name>overseer</servlet-name>
-        <url-pattern>/overseer</url-pattern>
-    </servlet-mapping>
- 
-    <servlet-mapping>
-        <servlet-name>porter</servlet-name>
-        <url-pattern>/porter</url-pattern>
-    </servlet-mapping>
- 
-    <context-param>
-        <param-name>overseer-patron-port</param-name>
-        <param-value>8888</param-value>
-    </context-param>
-    
-    <welcome-file-list>
-        <welcome-file>/porter</welcome-file>
-    </welcome-file-list>
-    
-    <listener>
-        <listener-class>com.wmsbox.porters.overseer.WebListener</listener-class>
-    </listener>
+	version="2.5">
+
+	<display-name>Porters Sample</display-name>
+
+	<servlet>
+		<servlet-name>porter</servlet-name>
+		<servlet-class>com.wmsbox.porters.overseer.PorterServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+
+		<init-param>
+			<param-name>template</param-name>
+			<param-value>/WEB-INF/porter.jsp</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet>
+		<servlet-name>overseer</servlet-name>
+		<servlet-class>com.wmsbox.porters.overseer.OverseerServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>overseer</servlet-name>
+		<url-pattern>/overseer</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>porter</servlet-name>
+		<url-pattern>/porter</url-pattern>
+	</servlet-mapping>
+
+	<context-param>
+		<param-name>overseer-patron-port</param-name>
+		<param-value>8888</param-value>
+	</context-param>
+
+	<welcome-file-list>
+		<welcome-file>/porter</welcome-file>
+	</welcome-file-list>
+
+	<error-page>
+		<error-code>401</error-code>
+		<location>/porter?cancel&amp;error</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/porter?cancel&amp;error</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/porter?cancel&amp;error</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/porter?cancel&amp;error</location>
+	</error-page>
+	<error-page>
+		<error-code>503</error-code>
+		<location>/porter?cancel&amp;error</location>
+	</error-page>
+
+	<listener>
+		<listener-class>com.wmsbox.porters.overseer.WebListener</listener-class>
+	</listener>
 </web-app>

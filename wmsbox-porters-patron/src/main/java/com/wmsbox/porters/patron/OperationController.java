@@ -55,7 +55,6 @@ public abstract class OperationController {
 
 	public final <T> Object inputOrChoice(String key, InputType<T> type, T defaultValue,
 			OptionKey... options) throws InterruptedException {
-		Operation operation = this.operationThread.getOperation();
 		Object result = null;
 		String initialValue = defaultValue != null ? type.toString(defaultValue) : null;
 
@@ -68,7 +67,7 @@ public abstract class OperationController {
 				result = type.toType((String) temporalResult);
 
 				if (result == null) {
-					initialValue = operation.getPorderDoValue();
+					initialValue = (String) temporalResult;
 					error(key + ".invalid", initialValue);
 				}
 			}
@@ -143,7 +142,6 @@ public abstract class OperationController {
 		Operation operation = this.operationThread.getOperation();
 		operation.request(new Confirm(key, text(key, params)));
 		operation = this.operationThread.requestIteration();
-		System.out.println("ConfirmResult " + operation.getPorderDoValue());
 
 		return operation.getPorderDoValue() != null 
 				? Boolean.parseBoolean(operation.getPorderDoValue()) : false;

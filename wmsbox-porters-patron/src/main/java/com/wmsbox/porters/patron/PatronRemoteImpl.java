@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wmsbox.porters.commons.Context;
 import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.OperationType;
@@ -13,6 +16,8 @@ import com.wmsbox.porters.commons.PatronRemote;
 
 public class PatronRemoteImpl implements PatronRemote {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PatronRemoteImpl.class);
+	
 	private final Patron patron;
 	private final OverseerRemote overseer;
 	private final Map<Long, OperationThread> operations = new HashMap<Long, OperationThread>();
@@ -30,9 +35,11 @@ public class PatronRemoteImpl implements PatronRemote {
 		return this.patron.getOperationTypes();
 	}
 
-	public Operation porterIteracts(Operation operation) throws RemoteException {
+	public Operation porterInteracts(Operation operation) throws RemoteException {
+		LOGGER.info("porterInteracts " + operation.getId());
 		OperationThread taskThread = this.operations.get(operation.getId());
 		taskThread.interactReturn(operation);
+		LOGGER.info("porterInteracts server end " + operation.getId());
 
 		if (!operation.getState().isLive()) {
 			OperationController nextController = taskThread.getNextController();
@@ -77,6 +84,7 @@ public class PatronRemoteImpl implements PatronRemote {
 	}
 
 	public void cancel(Operation operation) throws RemoteException {
+		LOGGER.info("cancel " + operation.getId());
 		OperationThread operationThread = this.operations.get(operation.getId());
 
 		if (operationThread != null) {

@@ -10,7 +10,7 @@ public interface PatronRemote extends Remote {
 
 	List<OperationType> getOperationTypes() throws RemoteException;
 
-	Operation porterIteracts(Operation operation) throws RemoteException;
+	Operation porterInteracts(Operation operation) throws RemoteException;
 
 	Operation porterRequestOperation(String code, Context ctx) throws RemoteException;
 

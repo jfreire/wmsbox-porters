@@ -43,7 +43,7 @@ class OperationThread implements Runnable {
 	}
 
 	public void interactReturn(Operation operation) {
-		LOGGER.debug("interactReturn {}");
+		LOGGER.info("interactReturn {}", operation);
 		this.operation = operation;
 		
 		try {
@@ -52,7 +52,7 @@ class OperationThread implements Runnable {
 			this.thread.interrupt();
 		}
 		
-		LOGGER.debug("interactReturn End {}", operation);
+		LOGGER.info("interactReturn End {}", operation);
 	}
 
 	public void run() {
@@ -67,12 +67,12 @@ class OperationThread implements Runnable {
 		} catch (Exception e) {
 			this.operation.cancelByPatron(null); //TODO enviar error
 		} finally {
-			this.connectionLock.end();
+			this.controllerLock.end(this.connectionLock);
 		}
 	}
 
 	public void cancel() {
-		LOGGER.debug("Cancel ", Arrays.toString(this.thread.getStackTrace()));
+		LOGGER.info("Cancel ", Arrays.toString(this.thread.getStackTrace()));
 		this.thread.interrupt();
 	}
 
