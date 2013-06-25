@@ -31,4 +31,8 @@ public enum NumberInputType implements InputType<Integer> {
 	public InputMode getMode() {
 		return InputMode.NUMBER;
 	}
+	
+	public String getFormat(Integer value) {
+		return null;
+	}
 }

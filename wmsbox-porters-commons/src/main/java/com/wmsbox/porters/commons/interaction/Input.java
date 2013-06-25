@@ -1,5 +1,8 @@
 package com.wmsbox.porters.commons.interaction;
 
+import java.util.Collections;
+import java.util.Set;
+
 
 public class Input extends Action {
 
@@ -8,12 +11,14 @@ public class Input extends Action {
 	private final String initialValue;
 	private final String type;
 	private final InputMode mode;
+	private final Set<InputOption> options;
 
-	public Input(String key, String text, String type, InputMode mode, String initialValue) {
+	public Input(String key, String text, String type, InputMode mode, String initialValue, Set<InputOption> options) {
 		super(key, text);
 		this.initialValue = initialValue;
 		this.type = type;
 		this.mode = mode;
+		this.options = options != null ? Collections.unmodifiableSet(options) : null;
 	}
 
 	public InputMode getMode() {
@@ -26,6 +31,10 @@ public class Input extends Action {
 
 	public String getType() {
 		return this.type;
+	}
+	
+	public Set<InputOption> getOptions() {
+		return this.options;
 	}
 
 	@Override

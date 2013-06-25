@@ -11,4 +11,13 @@ public interface InputType<T> {
 	T toType(String value);
 
 	String toString(T value);
+	
+	/**
+	 * Se usa para obtener el formato de un valor.
+	 * 
+	 * @param value
+	 * 
+	 * @return Nulo o un string que identifique el formato a la hora de presentar al usuario el valor.
+	 */
+	String getFormat(T value);
 }

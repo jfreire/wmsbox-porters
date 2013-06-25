@@ -1,7 +1,7 @@
 package com.wmsbox.porters.commons.interaction;
 
 
-public class Message extends TaskItem {
+public class Message extends OperationItem {
 
 	private static final long serialVersionUID = -8526618220797859655L;
 

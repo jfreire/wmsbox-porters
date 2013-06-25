@@ -1,9 +1,11 @@
 package com.wmsbox.porters.patron;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import com.wmsbox.porters.commons.Operation;
 import com.wmsbox.porters.commons.OperationType;
@@ -11,6 +13,7 @@ import com.wmsbox.porters.commons.interaction.Action;
 import com.wmsbox.porters.commons.interaction.Button;
 import com.wmsbox.porters.commons.interaction.Confirm;
 import com.wmsbox.porters.commons.interaction.Input;
+import com.wmsbox.porters.commons.interaction.InputOption;
 import com.wmsbox.porters.commons.interaction.Message;
 
 public abstract class OperationController {
@@ -39,27 +42,32 @@ public abstract class OperationController {
 
 	@SuppressWarnings("unchecked")
 	public final <T> T input(String key, InputType<T> type) throws InterruptedException {
-		return (T) inputOrChoice(key, type, null, (OptionKey[]) null);
+		return (T) inputOrChoice(key, type, null, null, (OptionKey[]) null);
 	}
 
 	@SuppressWarnings("unchecked")
 	public final <T> T input(String key, InputType<T> type, T defaultValue)
 			throws InterruptedException {
-		return (T) inputOrChoice(key, type, defaultValue);
+		return (T) inputOrChoice(key, type, defaultValue, null, (OptionKey[]) null);
 	}
 
 	public final <T> Object inputOrChoice(String key, InputType<T> type, OptionKey... options)
 			throws InterruptedException {
-		return inputOrChoice(key, type, null, options);
+		return inputOrChoice(key, type, null, null, options);
+	}
+	
+	public final <T> Object inputOrChoice(String key, InputType<T> type, T defaultValue, OptionKey... options)
+			throws InterruptedException {
+		return inputOrChoice(key, type, defaultValue, null, options);
 	}
 
-	public final <T> Object inputOrChoice(String key, InputType<T> type, T defaultValue,
+	public final <T> Object inputOrChoice(String key, InputType<T> type, T defaultValue, Set<T> inputOptions,
 			OptionKey... options) throws InterruptedException {
 		Object result = null;
 		String initialValue = defaultValue != null ? type.toString(defaultValue) : null;
 
 		while (result == null) {
-			Object temporalResult = innerInputOrChoice(key, type, initialValue, options);
+			Object temporalResult = innerInputOrChoice(key, type, initialValue, inputOptions, options);
 
 			if (temporalResult instanceof OptionKey) {
 				result = temporalResult;
@@ -76,10 +84,22 @@ public abstract class OperationController {
 		return result;
 	}
 
-	private final <T> Object innerInputOrChoice(String key, InputType<T> type, String initialValue,
+	private final <T> Object innerInputOrChoice(String key, InputType<T> type, String initialValue, Set<T> inputOptions,
 			OptionKey[] options) throws InterruptedException {
 		Operation operation = this.operationThread.getOperation();
-		Input input = new Input(key, text(key), type.name(), type.getMode(),  initialValue);
+		Set<InputOption> processedInputOptions = null;
+		
+		if (inputOptions != null && inputOptions.size() > 0) {
+			processedInputOptions = new HashSet<InputOption>();
+			
+			for (T option : inputOptions) {
+				String optionKey = type.toString(option);
+				processedInputOptions.add(new InputOption(optionKey, text(type.name() + "." + optionKey),
+						type.getFormat(option)));
+			}
+		}
+		
+		Input input = new Input(key, text(key), type.name(), type.getMode(), initialValue, processedInputOptions);
 
 		if (options == null || options.length == 0) {
 			operation.request(input);

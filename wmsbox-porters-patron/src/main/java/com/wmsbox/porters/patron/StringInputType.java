@@ -27,4 +27,8 @@ public enum StringInputType implements InputType<String> {
 	public InputMode getMode() {
 		return InputMode.TEXT;
 	}
+	
+	public String getFormat(String value) {
+		return null;
+	}
 }
