@@ -2,14 +2,13 @@ package com.wmsbox.porters.patron;
 
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.wmsbox.porters.commons.Operation;
 
 class OperationThread implements Runnable {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(OperationThread.class);
+	private static final Logger LOGGER = Logger.getLogger(OperationThread.class);
 
 	private final OperationController controller;
 	private final ToReadyLock controllerLock = new ToReadyLock();
@@ -43,7 +42,7 @@ class OperationThread implements Runnable {
 	}
 
 	public void interactReturn(Operation operation) {
-		LOGGER.info("interactReturn {}", operation);
+		LOGGER.info("interactReturn " + operation);
 		this.operation = operation;
 		
 		try {
@@ -52,7 +51,7 @@ class OperationThread implements Runnable {
 			this.thread.interrupt();
 		}
 		
-		LOGGER.info("interactReturn End {}", operation);
+		LOGGER.info("interactReturn End " + operation);
 	}
 
 	public void run() {
@@ -65,14 +64,15 @@ class OperationThread implements Runnable {
 		} catch (InterruptedException e) {
 			this.thread.interrupt();
 		} catch (Exception e) {
-			this.operation.cancelByPatron(null); //TODO enviar error
+			LOGGER.error(e.getMessage(), e);
+			this.controller.canceled("exception", e.getMessage());
 		} finally {
 			this.controllerLock.end(this.connectionLock);
 		}
 	}
 
 	public void cancel() {
-		LOGGER.info("Cancel ", Arrays.toString(this.thread.getStackTrace()));
+		LOGGER.info("Cancel " + Arrays.toString(this.thread.getStackTrace()));
 		this.thread.interrupt();
 	}
 

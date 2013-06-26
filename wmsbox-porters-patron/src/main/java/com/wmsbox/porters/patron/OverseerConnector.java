@@ -9,15 +9,14 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.wmsbox.porters.commons.OverseerRemote;
 import com.wmsbox.porters.commons.PatronRemote;
 
 public class OverseerConnector {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(OverseerConnector.class);
+	private static final Logger LOGGER = Logger.getLogger(OverseerConnector.class);
 
 	private final AtomicBoolean started = new AtomicBoolean(false);
 	private String host;
@@ -67,7 +66,7 @@ public class OverseerConnector {
 	}
 
 	public void disconnected(RemoteException exception) {
-		LOGGER.error("Disconnecting by {} ", exception.getMessage());
+		LOGGER.error("Disconnecting by " + exception.getMessage());
 
 		synchronized (OverseerConnector.this.thread) {
 			this.thread.notify();

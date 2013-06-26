@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.wmsbox.porters.commons.Context;
 import com.wmsbox.porters.commons.Operation;
@@ -16,7 +15,7 @@ import com.wmsbox.porters.commons.PatronRemote;
 
 public class PatronRemoteImpl implements PatronRemote {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PatronRemoteImpl.class);
+	private static final Logger LOGGER = Logger.getLogger(PatronRemoteImpl.class);
 	
 	private final Patron patron;
 	private final OverseerRemote overseer;
