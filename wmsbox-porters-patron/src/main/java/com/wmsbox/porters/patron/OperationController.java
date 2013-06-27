@@ -169,12 +169,12 @@ public abstract class OperationController {
 
 	public final void error(String key, Object... params) {
 		Operation operation = this.operationThread.getOperation();
-		operation.error(new Message(key, text(key, params)));
+		operation.error(new Message(key, text(key, params), true));
 	}
 
 	public void info(int index, String key, Object... params) {
 		Operation operation = this.operationThread.getOperation();
-		operation.info(index, new Message(key, text(key, params)));
+		operation.info(index, new Message(key, text(key, params), false));
 	}
 	
 	public void addTag(String tag) {
@@ -215,12 +215,12 @@ public abstract class OperationController {
 	public void completed(String key, Object... params) {
 		Operation operation = this.operationThread.getOperation();
 		
-		operation.completed(key != null ? new Message(key, text(key, params)) : null);
+		operation.completed(key != null ? new Message(key, text(key, params), false) : null);
 	}
 
 	public void canceled(String key, Object... params) {
 		Operation operation = this.operationThread.getOperation();
-		operation.cancelByPatron(new Message(key, text(key, params)));
+		operation.cancelByPatron(new Message(key, text(key, params), true));
 	}
 
 	private String text(String key, Object[] params) {

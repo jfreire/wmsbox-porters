@@ -46,7 +46,7 @@ public class PatronRemoteImpl implements PatronRemote {
 
 			if (nextController != null) {
 				Operation newOperation = startTask(nextController, operation.getContext());
-				newOperation.setPreviousEndMessage(operation.getEndMessage());
+				newOperation.setMessage(operation.getMessage());
 
 				return newOperation;
 			}

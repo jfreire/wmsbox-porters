@@ -101,11 +101,8 @@ public class PorterServlet extends BasicServlet {
 					operation = service.facade().porterIteracts(operation);
 
 					if (!operation.getState().isLive()) {
-						request.setAttribute("endMessage", operation.getEndMessage());
+						request.setAttribute("endMessage", operation.getMessage());
 						operation = null;
-					} else if (operation.getPreviousEndMessage() != null) {
-						request.setAttribute("endMessage", operation.getPreviousEndMessage());
-						operation.setPreviousEndMessage(null);
 					}
 				}
 			}

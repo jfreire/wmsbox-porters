@@ -15,13 +15,11 @@ public class Operation extends Base {
 	private static final long serialVersionUID = -5048824065756146177L;
 
 	private final long id;
-	private final List<Message> messages;
+	private final List<Message> info;
 	private final Context context;
 	private final OperationType type;
 	private OperationState state;
-	private Message error;
-	private Message endMessage;
-	private Message previousEndMessage;
+	private Message message;
 	private Action[] possibleActions;
 	private Action porterDo;
 	private String porderDoValue;
@@ -33,7 +31,7 @@ public class Operation extends Base {
 		this.type = type;
 		this.context = context;
 		this.state = OperationState.WAITING;
-		this.messages = new ArrayList<Message>();
+		this.info = new ArrayList<Message>();
 	}
 
 	public long getId() {
@@ -53,23 +51,7 @@ public class Operation extends Base {
 	}
 
 	public List<Message> getMessages() {
-		return this.messages;
-	}
-
-	public Message getError() {
-		return this.error;
-	}
-
-	public Message getEndMessage() {
-		return this.endMessage;
-	}
-
-	public Message getPreviousEndMessage() {
-		return this.previousEndMessage;
-	}
-
-	public void setPreviousEndMessage(Message previousEndMessage) {
-		this.previousEndMessage = previousEndMessage;
+		return this.info;
 	}
 
 	public Action[] getPossibleActions() {
@@ -93,29 +75,36 @@ public class Operation extends Base {
 		this.porterDo = action;
 		this.porderDoValue = value;
 	}
+	
+	public Message getMessage() {
+		return this.message;
+	}
+	
+	public void setMessage(Message message) {
+		this.message = message;
+	}
 
 	public void reset() {
 		this.porderDoValue = null;
 		this.porterDo = null;
-		this.error = null;
 		this.possibleActions = null;
-		this.previousEndMessage = null;
+		this.message = null;
 	}
 
 	public void info(int index, Message message) {
 		checkProcessingState();
 		
-		if (this.messages.size() > index) {
-			this.messages.set(index, message);
+		if (this.info.size() > index) {
+			this.info.set(index, message);
 		} else {
 			//TODO revisar
-			this.messages.add(message);
+			this.info.add(message);
 		}
 	}
 
 	public void error(Message message) {
 		checkProcessingState();
-		this.error = message;
+		this.message = message;
 	}
 
 	public void request(Action... possibleActions) {
@@ -125,7 +114,7 @@ public class Operation extends Base {
 
 	public void cancelByPatron(Message message) {
 		if (this.state.isLive()) {
-			this.endMessage = message;
+			this.message = message;
 			this.state = OperationState.CANCELED_BY_PATRON;
 		} else {
 			throw new IllegalStateException();
@@ -134,7 +123,7 @@ public class Operation extends Base {
 
 	public void cancelByPorter(Message message) {
 		if (this.state.isLive()) {
-			this.endMessage = message;
+			this.message = message;
 			this.state = OperationState.CANCELED_BY_PORTER;
 		} else {
 			throw new IllegalStateException();
@@ -143,7 +132,7 @@ public class Operation extends Base {
 
 	public void completed(Message message) {
 		checkProcessingState();
-		this.endMessage = message;
+		this.message = message;
 		this.state = OperationState.COMPLETED;
 	}
 
@@ -180,7 +169,7 @@ public class Operation extends Base {
 	@Override
 	public String toString() {
 		return "Task[" + this.id + ", " + this.type + ", " + Arrays.toString(this.possibleActions)
-				+ ", " + this.error + ", " + this.messages + ", " + this.porterDo + ", "
+				+ ", " + this.message + ", " + this.info + ", " + this.porterDo + ", "
 				+ this.porderDoValue + "]";
 	}
 }
