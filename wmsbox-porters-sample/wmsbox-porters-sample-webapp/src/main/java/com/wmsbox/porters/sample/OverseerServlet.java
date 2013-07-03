@@ -16,7 +16,7 @@ public class OverseerServlet extends HttpServlet {
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		request.setAttribute("operations", WebListener.SERVICE.facade().findCurrentSessions());
+		request.setAttribute("operations", WebListener.SERVICE.get().findCurrentSessions());
 		request.getRequestDispatcher("/WEB-INF/overseer.jsp").forward(request, response);
 	}
 }

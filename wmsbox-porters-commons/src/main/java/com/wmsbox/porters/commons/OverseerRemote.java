@@ -1,9 +1,10 @@
 package com.wmsbox.porters.commons;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface OverseerRemote extends Remote {
+import com.wmsbox.porters.commons.service.RmiFacade;
+
+public interface OverseerRemote extends RmiFacade {
 
 	String REMOTE_REFERENCE_NAME = "Overseer";
 
@@ -12,6 +13,4 @@ public interface OverseerRemote extends Remote {
 	void request(OperationRequest request) throws RemoteException;
 
 	Operation createOperation(OperationType type, Context context) throws RemoteException;
-
-	void ping() throws RemoteException;
 }

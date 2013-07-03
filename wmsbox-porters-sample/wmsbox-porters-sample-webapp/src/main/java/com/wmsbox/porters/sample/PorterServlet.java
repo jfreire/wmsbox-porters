@@ -40,7 +40,7 @@ public class PorterServlet extends BasicServlet {
 					session.removeAttribute("canceling");
 					
 					if (confirm.booleanValue()) {
-						service.facade().cancelCurrentOperation(ctx.getPorter());
+						service.get().cancelCurrentOperation(ctx.getPorter());
 						session.removeAttribute("operation");
 					} else {
 						operation.request((Action[]) session.getAttribute("oldActions"));
@@ -70,13 +70,13 @@ public class PorterServlet extends BasicServlet {
 				String operationType = request.getParameter("operationType");
 				
 				if (operationType != null) {
-					operation = service.facade().porterRequestOperation(OperationTypeFormat.INSTANCE
+					operation = service.get().porterRequestOperation(OperationTypeFormat.INSTANCE
 							.parse(operationType), ctx);
 				} else {
 					String code = request.getParameter("code");
 
 					if (code != null) {
-						operation = service.facade().porterRequestOperation(code, ctx);
+						operation = service.get().porterRequestOperation(code, ctx);
 
 						if (operation == null) {
 							request.setAttribute("error", "Código inválido " + code);
@@ -98,7 +98,7 @@ public class PorterServlet extends BasicServlet {
 						operation.porterDo(action, null);
 					}
 
-					operation = service.facade().porterIteracts(operation);
+					operation = service.get().porterIteracts(operation);
 
 					if (!operation.getState().isLive()) {
 						request.setAttribute("endMessage", operation.getMessage());
@@ -178,7 +178,7 @@ public class PorterServlet extends BasicServlet {
 					//TODO validate
 					session.setAttribute("style", "css/mainInditex.css");
 					log("Porter logged " + porter);
-					WebListener.SERVICE.facade().login(porter);
+					WebListener.SERVICE.get().login(porter);
 					session.setAttribute("porter", porter);
 				}
 				

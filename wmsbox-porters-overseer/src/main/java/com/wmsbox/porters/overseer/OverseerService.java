@@ -1,51 +1,57 @@
 package com.wmsbox.porters.overseer;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.rmi.NoSuchObjectException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
-public class OverseerService {
-	
-	private OverseerController controller;
-	private final AtomicBoolean started = new AtomicBoolean();
-	private int port = 8888;
-	private int pingPeriodInMillis = 2000;
-	private Thread thread;
-	
-	public int getPort() {
-		return this.port;
-	}
-	
-	public void setPort(int port) {
-		this.port = port;
-	}
-	
-	public int getPingPeriodInMillis() {
-		return this.pingPeriodInMillis;
-	}
+import com.wmsbox.porters.commons.OverseerRemote;
+import com.wmsbox.porters.commons.service.RmiController;
+import com.wmsbox.porters.commons.service.RmiService;
 
-	public void setPingPeriodInMillis(int pingPeriodInMillis) {
-		this.pingPeriodInMillis = pingPeriodInMillis;
-	}
+public class OverseerService extends RmiService<OverseerFacade> {
 	
-	public OverseerFacade facade() {
-		if (this.started.get()) {
-			return this.controller;
-		}
-		
-		return null;
-	}
-	
-	public void start() {
-		if (this.started.compareAndSet(false, true)) {
-			this.controller = new OverseerController();
-			this.thread = new Thread(new OverseerServiceWorker(this, this.controller), 
-					OverseerServiceWorker.class.getName());
-			this.thread.start();
-		}
-	}
-	
-	public void stop() {
-		if (this.started.compareAndSet(true, false)) {
-			this.thread.interrupt();
-		}
+	public OverseerService() {
+		super(new RmiController<OverseerFacade>() {
+			
+			private OverseerRemote overseerStub;
+			private boolean connected = false;
+			private OverseerController controller = new OverseerController();
+
+			public void doPing() throws RemoteException {
+				this.controller.pingPatrons();
+			}
+
+			public void stopped() {
+				try {
+					this.controller.cancelAll();
+					UnicastRemoteObject.unexportObject(this.overseerStub, false);
+				} catch (NoSuchObjectException e) {
+					// Nada
+				}
+			}
+
+			public boolean isConnected() {
+				return this.connected;
+			}
+
+			public void disconnect(Exception cause) {
+				this.connected = false;
+			}
+
+			public void tryConnect(RmiService<OverseerFacade> service) throws RemoteException {
+				this.overseerStub = (OverseerRemote) UnicastRemoteObject.exportObject(this.controller,
+						service.getPort());
+				Registry registry = LocateRegistry.createRegistry(service.getPort());
+				registry.rebind(OverseerRemote.REMOTE_REFERENCE_NAME, this.overseerStub);
+				
+				this.connected = true;
+			}
+
+			public OverseerFacade facade() {
+				return this.controller;
+			}
+		});
 	}
 }

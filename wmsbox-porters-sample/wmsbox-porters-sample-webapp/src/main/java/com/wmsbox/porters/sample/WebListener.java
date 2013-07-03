@@ -26,7 +26,10 @@ public class WebListener implements ServletContextListener, HttpSessionListener 
 			throw new IllegalArgumentException("RMI port not defined");
 		}
 
-		SERVICE.setPingPeriodInMillis(Integer.parseInt(pingPeriodInMillis));
+		if (pingPeriodInMillis != null) {
+			SERVICE.setPingPeriodInMillis(Integer.parseInt(pingPeriodInMillis));
+		}
+		
 		SERVICE.setPort(Integer.parseInt(portString));
 		
 		SERVICE.start();
@@ -40,7 +43,7 @@ public class WebListener implements ServletContextListener, HttpSessionListener 
 		String porter = (String) evt.getSession().getAttribute("porter");
 
 		if (porter != null) {
-			SERVICE.facade().logout(porter);
+			SERVICE.get().logout(porter);
 		}
 	}
 }

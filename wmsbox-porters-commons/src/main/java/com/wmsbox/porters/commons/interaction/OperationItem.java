@@ -24,7 +24,7 @@ public abstract class OperationItem implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj != null && this.key.equals(((OperationItem) obj).key);
+		return obj instanceof OperationItem && this.key.equals(((OperationItem) obj).key);
 	}
 
 	@Override

@@ -13,7 +13,7 @@ public class ToReadyLock {
 		}
 
 		synchronized (this) {
-			if (!otherLock.ready) {
+			while (!otherLock.ready) {
 				wait();
 			}
 		}

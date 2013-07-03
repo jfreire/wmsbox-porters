@@ -7,8 +7,8 @@ import java.util.List;
 
 import com.wmsbox.porters.commons.OperationType;
 import com.wmsbox.porters.patron.OperationController;
-import com.wmsbox.porters.patron.OverseerConnector;
 import com.wmsbox.porters.patron.Patron;
+import com.wmsbox.porters.patron.PatronService;
 
 public class SamplePatron implements Patron {
 
@@ -48,10 +48,11 @@ public class SamplePatron implements Patron {
 	}
 
 	public static void main(String[] args) throws RemoteException, NotBoundException {
-		OverseerConnector connector = new OverseerConnector();
-		connector.setHost("localhost");
-		connector.setPort(8888);
-		connector.start(new SamplePatron());
+		PatronService service = new PatronService();
+		service.setHost("localhost");
+		service.setPort(8888);
+		service.init(new SamplePatron());
+		service.start();
 	}
 
 	public String getResourcesFile() {

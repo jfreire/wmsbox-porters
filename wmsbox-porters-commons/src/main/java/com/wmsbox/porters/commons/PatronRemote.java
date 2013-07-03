@@ -1,10 +1,11 @@
 package com.wmsbox.porters.commons;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
-public interface PatronRemote extends Remote {
+import com.wmsbox.porters.commons.service.RmiFacade;
+
+public interface PatronRemote extends RmiFacade {
 
 	String getKey() throws RemoteException;
 
@@ -13,8 +14,6 @@ public interface PatronRemote extends Remote {
 	Operation porterInteracts(Operation operation) throws RemoteException;
 
 	Operation porterRequestOperation(String code, Context ctx) throws RemoteException;
-
-	void ping() throws RemoteException;
 
 	Operation porterRequestOperation(OperationType type, Context ctx) throws RemoteException;
 

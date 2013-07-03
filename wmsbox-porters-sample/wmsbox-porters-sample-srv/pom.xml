@@ -12,10 +12,15 @@
 	<name>wmsbox-porters-sample-srv</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
-        <dependency>
-            <groupId>com.wmsbox.porters</groupId>
-            <artifactId>wmsbox-porters-patron</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+		<dependency>
+			<groupId>com.wmsbox.porters</groupId>
+			<artifactId>wmsbox-porters-patron</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.5</version>
+		</dependency>
 	</dependencies>
 </project>

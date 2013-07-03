@@ -7,7 +7,7 @@
 
 	<servlet>
 		<servlet-name>porter</servlet-name>
-		<servlet-class>com.wmsbox.porters.overseer.PorterServlet</servlet-class>
+		<servlet-class>com.wmsbox.porters.sample.PorterServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 
 		<init-param>
@@ -18,7 +18,7 @@
 
 	<servlet>
 		<servlet-name>overseer</servlet-name>
-		<servlet-class>com.wmsbox.porters.overseer.OverseerServlet</servlet-class>
+		<servlet-class>com.wmsbox.porters.sample.OverseerServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
@@ -63,6 +63,6 @@
 	</error-page>
 
 	<listener>
-		<listener-class>com.wmsbox.porters.overseer.WebListener</listener-class>
+		<listener-class>com.wmsbox.porters.sample.WebListener</listener-class>
 	</listener>
 </web-app>

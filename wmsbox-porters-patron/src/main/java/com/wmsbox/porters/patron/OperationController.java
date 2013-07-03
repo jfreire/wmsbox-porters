@@ -84,7 +84,7 @@ public abstract class OperationController {
 		return result;
 	}
 
-	private final <T> Object innerInputOrChoice(String key, InputType<T> type, String initialValue, Set<T> inputOptions,
+	private <T> Object innerInputOrChoice(String key, InputType<T> type, String initialValue, Set<T> inputOptions,
 			OptionKey[] options) throws InterruptedException {
 		Operation operation = this.operationThread.getOperation();
 		Set<InputOption> processedInputOptions = null;
