@@ -46,6 +46,11 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 
 	public void login(String porter) {
 		LOGGER.info("Logged {} ", porter);
+
+		if (this.sessions.containsKey(porter)) {
+			cancelCurrentOperation(porter);
+		}
+
 		this.sessions.put(porter, new SessionInfo(porter, System.currentTimeMillis()));
 	}
 
@@ -101,7 +106,7 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 			String porter = operation.getContext().getPorter();
 			operation = this.patron.porterInteracts(operation);
 
-			if (operation.getPossibleActions() == null) {
+			if (operation.getPossibleActions() == null && operation.getState().isLive()) {
 				LOGGER.debug("Invalid state " + operation);
 				cancelCurrentOperation(porter);
 				operation = null;
