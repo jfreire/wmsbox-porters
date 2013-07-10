@@ -18,13 +18,13 @@ import com.wmsbox.porters.commons.OverseerRemote;
 import com.wmsbox.porters.commons.PatronRemote;
 
 public class OverseerController implements OverseerRemote, OverseerFacade {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(OverseerController.class);
-	
+
 	private final AtomicLong ids = new AtomicLong();
 	private final Map<String, SessionInfo> sessions = new ConcurrentHashMap<String, SessionInfo>();
 	private final Map<Long, Operation> operations = new ConcurrentHashMap<Long, Operation>();
-	
+
 	private PatronRemote patron = null;
 
 	public void register(PatronRemote patron) throws RemoteException {
@@ -52,7 +52,7 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 	public void logout(String porter) {
 		LOGGER.info("Logged out {}", porter);
 		SessionInfo sessionInfo = this.sessions.remove(porter);
-		
+
 		if (sessionInfo != null) {
 			cancelCurrentOperation(sessionInfo);
 		}
@@ -64,17 +64,17 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 
 	public void cancelCurrentOperation(String porter) {
 		LOGGER.info("Cancel current operation {} ", porter);
-		
+
 		SessionInfo sessionInfo = this.sessions.get(porter);
-		
+
 		if (sessionInfo != null) {
 			cancelCurrentOperation(sessionInfo);
 		}
 	}
-	
+
 	private void cancelCurrentOperation(SessionInfo sessionInfo) {
 		Operation operation = sessionInfo.getCurrentOperation();
-		
+
 		if (operation != null) {
 			try {
 				operation.cancelByPatron(null);
@@ -82,12 +82,12 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 			} catch (RemoteException e) {
 				LOGGER.error("Error canceling " + operation.getId(), e);
 			}
-			
+
 			this.operations.remove(operation.getId());
 			sessionInfo.setCurrentOperation(null);
 		}
 	}
-	
+
 	protected void cancelAll() {
 		for (SessionInfo session : this.sessions.values()) {
 			cancelCurrentOperation(session);
@@ -96,10 +96,17 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 
 	public Operation porterIteracts(Operation operation) throws RemoteException {
 		LOGGER.info("porterIteracts {} {}", operation.getPorterDo().getKey() + " - " + operation.getPorderDoValue());
-		
+
 		if (this.patron != null) {
 			String porter = operation.getContext().getPorter();
 			operation = this.patron.porterInteracts(operation);
+
+			if (operation.getPossibleActions() == null) {
+				LOGGER.debug("Invalid state " + operation);
+				cancelCurrentOperation(porter);
+				operation = null;
+			}
+
 			operationChanged(porter, operation);
 		}
 
@@ -129,15 +136,15 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 
 		return operation;
 	}
-	
+
 	private void operationChanged(String porter, Operation operation) {
 		SessionInfo session = this.sessions.get(porter);
 		Operation lastOp = session.getCurrentOperation();
-		
+
 		if (lastOp != null) {
 			this.operations.remove(lastOp.getId());
 		}
-		
+
 		if (operation != null) {
 			session.setCurrentOperation(operation);
 			this.operations.put(operation.getId(), operation);
@@ -145,7 +152,7 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 			session.setCurrentOperation(null);
 		}
 	}
-	
+
 	public void pingPatrons() throws RemoteException {
 		if (this.patron != null) {
 			this.patron.ping();

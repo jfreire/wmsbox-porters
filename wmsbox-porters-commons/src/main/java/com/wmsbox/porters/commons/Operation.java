@@ -75,11 +75,11 @@ public class Operation extends Base {
 		this.porterDo = action;
 		this.porderDoValue = value;
 	}
-	
+
 	public Message getMessage() {
 		return this.message;
 	}
-	
+
 	public void setMessage(Message message) {
 		this.message = message;
 	}
@@ -93,7 +93,7 @@ public class Operation extends Base {
 
 	public void info(int index, Message message) {
 		checkProcessingState();
-		
+
 		if (this.info.size() > index) {
 			this.info.set(index, message);
 		} else {
@@ -117,7 +117,7 @@ public class Operation extends Base {
 			this.message = message;
 			this.state = OperationState.CANCELED_BY_PATRON;
 		} else {
-			throw new IllegalStateException();
+			throw new IllegalStateException("CancelByPatron " + this);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class Operation extends Base {
 			this.message = message;
 			this.state = OperationState.CANCELED_BY_PORTER;
 		} else {
-			throw new IllegalStateException();
+			throw new IllegalStateException("CancelByPorter " + this);
 		}
 	}
 
@@ -140,35 +140,36 @@ public class Operation extends Base {
 		if (this.state == OperationState.WAITING) {
 			this.state = OperationState.PROCESSING;
 		} else {
-			throw new IllegalStateException();
+			throw new IllegalStateException("GoToProcess " + this);
 		}
 	}
 
 	private void checkProcessingState() {
 		if (this.state != OperationState.PROCESSING) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("CheckingProcessingState " + this);
 		}
 	}
-	
+
 	public void addTag(String tag) {
 		this.tags.add(tag);
 	}
-	
+
 	public void removeTag(String tag) {
 		this.tags.remove(tag);
 	}
-	
+
 	public boolean hasTag(String tag) {
 		return this.tags.contains(tag);
 	}
-	
+
 	public Set<String> getTags() {
 		return Collections.unmodifiableSet(this.tags);
 	}
 
 	@Override
 	public String toString() {
-		return "Task[" + this.id + ", " + this.type + ", " + Arrays.toString(this.possibleActions)
+		return "Operation[" + this.id + ", " + this.type + ", " + this.state + ", "
+				+ Arrays.toString(this.possibleActions)
 				+ ", " + this.message + ", " + this.info + ", " + this.porterDo + ", "
 				+ this.porderDoValue + "]";
 	}
