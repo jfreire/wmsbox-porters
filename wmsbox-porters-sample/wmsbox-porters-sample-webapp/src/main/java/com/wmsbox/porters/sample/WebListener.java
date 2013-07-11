@@ -2,6 +2,7 @@ package com.wmsbox.porters.sample;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
@@ -11,7 +12,7 @@ public class WebListener implements ServletContextListener, HttpSessionListener 
 
 	private static final String PORT_PARAM = "overseer-patron-port";
 	private static final String PING_PARAM = "ping-period-in-millis";
-	
+
 	public static final OverseerService SERVICE = new OverseerService();
 
 	public void contextDestroyed(ServletContextEvent evt) {
@@ -21,7 +22,7 @@ public class WebListener implements ServletContextListener, HttpSessionListener 
 	public void contextInitialized(ServletContextEvent evt) {
 		String portString = evt.getServletContext().getInitParameter(PORT_PARAM);
 		String pingPeriodInMillis = evt.getServletContext().getInitParameter(PING_PARAM);
-		
+
 		if (portString == null) {
 			throw new IllegalArgumentException("RMI port not defined");
 		}
@@ -29,9 +30,9 @@ public class WebListener implements ServletContextListener, HttpSessionListener 
 		if (pingPeriodInMillis != null) {
 			SERVICE.setPingPeriodInMillis(Integer.parseInt(pingPeriodInMillis));
 		}
-		
+
 		SERVICE.setPort(Integer.parseInt(portString));
-		
+
 		SERVICE.start();
 	}
 
@@ -40,10 +41,11 @@ public class WebListener implements ServletContextListener, HttpSessionListener 
 	}
 
 	public void sessionDestroyed(HttpSessionEvent evt) {
-		String porter = (String) evt.getSession().getAttribute("porter");
+		HttpSession session = evt.getSession();
+		String porter = (String) session.getAttribute("porter");
 
 		if (porter != null) {
-			SERVICE.get().logout(porter);
+			SERVICE.get().logout(session.getId(), porter);
 		}
 	}
 }

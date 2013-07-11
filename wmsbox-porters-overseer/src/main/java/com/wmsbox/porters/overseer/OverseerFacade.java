@@ -9,14 +9,14 @@ import com.wmsbox.porters.commons.OperationType;
 
 public interface OverseerFacade {
 
-	void login(String porter);
-	
-	void logout(String porter);
-	
+	void login(String sessionId, String porter);
+
+	void logout(String sessionId, String porter);
+
 	List<SessionInfo> findCurrentSessions();
-	
+
 	void cancelCurrentOperation(String porter);
-	
+
 	Operation porterIteracts(Operation operation) throws RemoteException;
 
 	Operation porterRequestOperation(String code, Context ctx) throws RemoteException;

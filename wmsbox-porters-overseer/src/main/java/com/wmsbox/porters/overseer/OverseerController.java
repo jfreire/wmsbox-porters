@@ -44,19 +44,20 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 		// Nada
 	}
 
-	public void login(String porter) {
-		LOGGER.info("Logged {} ", porter);
+	public void login(String sessionId, String porter) {
+		LOGGER.info("Logged {} {} ", porter, sessionId);
 
-		if (this.sessions.containsKey(porter)) {
-			cancelCurrentOperation(porter);
+		if (this.sessions.containsKey(sessionId)) {
+			cancelCurrentOperation(sessionId);
 		}
 
-		this.sessions.put(porter, new SessionInfo(porter, System.currentTimeMillis()));
+		this.sessions.put(sessionId, new SessionInfo(sessionId, porter,
+				System.currentTimeMillis()));
 	}
 
-	public void logout(String porter) {
+	public void logout(String sessionId, String porter) {
 		LOGGER.info("Logged out {}", porter);
-		SessionInfo sessionInfo = this.sessions.remove(porter);
+		SessionInfo sessionInfo = this.sessions.remove(sessionId);
 
 		if (sessionInfo != null) {
 			cancelCurrentOperation(sessionInfo);
@@ -100,19 +101,37 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 	}
 
 	public Operation porterIteracts(Operation operation) throws RemoteException {
-		LOGGER.info("porterIteracts {} {}", operation.getPorterDo().getKey() + " - " + operation.getPorderDoValue());
+		LOGGER.info("porterIteracts {} {}", operation.getPorterDo().getKey(),
+				operation.getPorderDoValue());
 
 		if (this.patron != null) {
-			String porter = operation.getContext().getPorter();
-			operation = this.patron.porterInteracts(operation);
+			String sessionId = operation.getContext().getSessionId();
+			SessionInfo sessionInfo = this.sessions.get(sessionId);
 
-			if (operation.getPossibleActions() == null && operation.getState().isLive()) {
-				LOGGER.debug("Invalid state " + operation);
-				cancelCurrentOperation(porter);
+			if (sessionInfo != null) {
+				try {
+					if (sessionInfo.checkThatIsTheFirst()) {
+						operation = this.patron.porterInteracts(operation);
+						sessionInfo.markAsReady();
+					} else {
+						operation = sessionInfo.getCurrentOperation();
+					}
+
+					if (operation.getPossibleActions() == null && operation.getState().isLive()) {
+						LOGGER.debug("Invalid state " + operation);
+						operation = null;
+					}
+				} catch (InterruptedException e) {
+					operation = null;
+
+					LOGGER.error(e.getMessage());
+				}
+
+				operationChanged(sessionId, operation);
+			} else {
+				LOGGER.error("Interacts without session {} ", operation);
 				operation = null;
 			}
-
-			operationChanged(porter, operation);
 		}
 
 		return operation;
@@ -124,7 +143,7 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 
 		if (this.patron != null) {
 			operation = this.patron.porterRequestOperation(code, ctx);
-			operationChanged(ctx.getPorter(), operation);
+			operationChanged(ctx.getSessionId(), operation);
 		}
 
 		return operation;
@@ -136,18 +155,22 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 
 		if (this.patron != null) {
 			operation = this.patron.porterRequestOperation(type, ctx);
-			operationChanged(ctx.getPorter(), operation);
+			operationChanged(ctx.getSessionId(), operation);
 		}
 
 		return operation;
 	}
 
-	private void operationChanged(String porter, Operation operation) {
-		SessionInfo session = this.sessions.get(porter);
+	private void operationChanged(String sessionId, Operation operation) {
+		SessionInfo session = this.sessions.get(sessionId);
 		Operation lastOp = session.getCurrentOperation();
 
 		if (lastOp != null) {
 			this.operations.remove(lastOp.getId());
+
+			if (lastOp.getState().isLive()) {
+				cancelCurrentOperation(sessionId);
+			}
 		}
 
 		if (operation != null) {

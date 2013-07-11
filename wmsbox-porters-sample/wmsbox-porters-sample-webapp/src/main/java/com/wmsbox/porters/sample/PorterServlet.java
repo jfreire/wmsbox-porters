@@ -23,7 +23,7 @@ public class PorterServlet extends BasicServlet {
 
 	private static final long serialVersionUID = 1646111608667964307L;
 
-	
+
 	@Override
 	protected boolean process(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Context ctx = context(request);
@@ -35,12 +35,12 @@ public class PorterServlet extends BasicServlet {
 
 			if (request.getParameter("cancel") != null && operation != null) {
 				Boolean confirm = confirm(request);
-				
+
 				if (confirm != null) {
 					session.removeAttribute("canceling");
-					
+
 					if (confirm.booleanValue()) {
-						service.get().cancelCurrentOperation(ctx.getPorter());
+						service.get().cancelCurrentOperation(ctx.getSessionId());
 						session.removeAttribute("operation");
 					} else {
 						operation.request((Action[]) session.getAttribute("oldActions"));
@@ -52,23 +52,23 @@ public class PorterServlet extends BasicServlet {
 					operation.reset();
 					operation.request(new Confirm("confirm.cancel", "Está seguro de querer cancelar la operación actual?"));
 				}
-				
+
 				return false;
 			}
-			
+
 			if (request.getParameter("changeStyle") != null) {
 				if (session.getAttribute("style").equals("css/mainInditex.css")) {
 					session.setAttribute("style", "css/mainInditex2.css");
 				} else {
 					session.setAttribute("style", "css/mainInditex.css");
 				}
-				
+
 				return false;
 			}
-			
+
 			if (operation == null) {
 				String operationType = request.getParameter("operationType");
-				
+
 				if (operationType != null) {
 					operation = service.get().porterRequestOperation(OperationTypeFormat.INSTANCE
 							.parse(operationType), ctx);
@@ -112,12 +112,12 @@ public class PorterServlet extends BasicServlet {
 
 		return true;
 	}
-	
+
 	private Boolean confirm(HttpServletRequest request) {
 		if (request.getParameter("confirm") == null) {
 			return null;
 		}
-		
+
 		return "SI".equals(request.getParameter("confirm")) ? Boolean.TRUE : Boolean.FALSE;
 	}
 
@@ -166,7 +166,7 @@ public class PorterServlet extends BasicServlet {
 
 		if (session != null) {
 			porter = (String) session.getAttribute("porter");
-			
+
 
 			if (porter == null) {
 				//Login
@@ -178,14 +178,14 @@ public class PorterServlet extends BasicServlet {
 					//TODO validate
 					session.setAttribute("style", "css/mainInditex.css");
 					log("Porter logged " + porter);
-					WebListener.SERVICE.get().login(porter);
+					WebListener.SERVICE.get().login(session.getId(), porter);
 					session.setAttribute("porter", porter);
 				}
-				
+
 				return null;
 			}
 		}
 
-		return new Context(porter, Locale.getDefault());
+		return new Context(session.getId(), porter, Locale.getDefault());
 	}
 }

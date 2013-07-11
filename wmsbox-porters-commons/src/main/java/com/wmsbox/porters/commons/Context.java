@@ -9,18 +9,24 @@ public class Context implements Serializable {
 
 	private final String porter;
 	private final Locale locale;
+	private final String sessionId;
 
-	public Context(String porter, Locale locale) {
+	public Context(String sessionId, String porter, Locale locale) {
 		this.porter = porter;
 		this.locale = locale;
+		this.sessionId = sessionId;
 	}
 
-	public String getPorter() {
+	public String getPorter2() {
 		return this.porter;
 	}
 
 	public Locale getLocale() {
 		return this.locale;
+	}
+
+	public String getSessionId() {
+		return sessionId;
 	}
 
 	@Override
