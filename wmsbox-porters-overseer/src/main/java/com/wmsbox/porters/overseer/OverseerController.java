@@ -164,20 +164,21 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 	private void operationChanged(String sessionId, Operation operation) {
 		SessionInfo session = this.sessions.get(sessionId);
 		Operation lastOp = session.getCurrentOperation();
+		LOGGER.debug("OperationChanged " + sessionId + " - " + operation + " - " + lastOp);
 
 		if (lastOp != null) {
 			this.operations.remove(lastOp.getId());
 
-			if (lastOp.getState().isLive()) {
+			if (lastOp.getState().isLive()
+					&& (operation == null || lastOp.getId() != operation.getId())) {
 				cancelCurrentOperation(sessionId);
 			}
 		}
 
+		session.setCurrentOperation(operation);
+
 		if (operation != null) {
-			session.setCurrentOperation(operation);
 			this.operations.put(operation.getId(), operation);
-		} else {
-			session.setCurrentOperation(null);
 		}
 	}
 

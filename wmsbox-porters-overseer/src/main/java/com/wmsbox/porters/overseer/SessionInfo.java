@@ -1,15 +1,20 @@
 package com.wmsbox.porters.overseer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wmsbox.porters.commons.Operation;
 
 public class SessionInfo {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SessionInfo.class);
 
 	private final String id;
 	private final String porter;
 	private final long loggedTime;
 	private long lastActionTime;
 	private Operation currentOperation;
-	private boolean processingInPatron;
+	private boolean processingInPatron = false;
 
 	public SessionInfo(String id, String porter, long loggedTime) {
 		this.id = id;
@@ -38,11 +43,14 @@ public class SessionInfo {
 	}
 
 	public synchronized void markAsReady() {
-		this.processingInPatron = true;
-
+		LOGGER.debug(this.id + " markAsReady " + this.processingInPatron);
+		this.processingInPatron = false;
+		notifyAll();
 	}
 
 	public synchronized boolean checkThatIsTheFirst() throws InterruptedException {
+		LOGGER.debug(this.id + " checkThatIsTheFirst " + this.processingInPatron);
+
 		if (this.processingInPatron) {
 			do {
 				wait();
@@ -50,6 +58,8 @@ public class SessionInfo {
 
 			return false;
 		}
+
+		this.processingInPatron = true;
 
 		return true;
 	}
