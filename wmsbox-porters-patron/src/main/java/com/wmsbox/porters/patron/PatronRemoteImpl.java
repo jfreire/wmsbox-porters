@@ -38,6 +38,14 @@ public class PatronRemoteImpl implements PatronRemote {
 	public Operation porterInteracts(Operation operation) throws RemoteException {
 		LOGGER.info("porterInteracts " + operation.getId());
 		OperationThread taskThread = this.operations.get(operation.getId());
+		
+		if (taskThread == null) {
+			LOGGER.error("Unknown operation " + operation.getId());
+			operation.cancelByPatron(null);
+			
+			return null;
+		}
+
 		taskThread.interactReturn(operation);
 		LOGGER.info("porterInteracts server end " + operation.getId());
 

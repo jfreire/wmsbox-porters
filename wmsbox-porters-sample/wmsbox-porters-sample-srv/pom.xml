@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.wmsbox.porters.sample</groupId>
 		<artifactId>wmsbox-porters-sample</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 	<artifactId>wmsbox-porters-sample-srv</artifactId>
 	<name>wmsbox-porters-sample-srv</name>
@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>com.wmsbox.porters</groupId>
 			<artifactId>wmsbox-porters-patron</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
