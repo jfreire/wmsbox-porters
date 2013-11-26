@@ -15,7 +15,7 @@ public class OverseerService extends RmiService<OverseerFacade> {
 	public OverseerService() {
 		super(new RmiController<OverseerFacade>() {
 			
-			private OverseerRemote overseerStub;
+			private Registry registry;
 			private boolean connected = false;
 			private OverseerController controller = new OverseerController();
 
@@ -24,9 +24,16 @@ public class OverseerService extends RmiService<OverseerFacade> {
 			}
 
 			public void stopped() {
-				try {
-					this.controller.cancelAll();
-					UnicastRemoteObject.unexportObject(this.overseerStub, false);
+				this.controller.cancelAll();
+				
+				try {	
+					UnicastRemoteObject.unexportObject(this.controller, true);
+				} catch (NoSuchObjectException e) {
+					// Nada
+				}
+				
+				try {	
+					UnicastRemoteObject.unexportObject(this.registry, true);
 				} catch (NoSuchObjectException e) {
 					// Nada
 				}
@@ -41,10 +48,10 @@ public class OverseerService extends RmiService<OverseerFacade> {
 			}
 
 			public void tryConnect(RmiService<OverseerFacade> service) throws RemoteException {
-				this.overseerStub = (OverseerRemote) UnicastRemoteObject.exportObject(this.controller,
-						service.getPort());
-				Registry registry = LocateRegistry.createRegistry(service.getPort());
-				registry.rebind(OverseerRemote.REMOTE_REFERENCE_NAME, this.overseerStub);
+				OverseerRemote overseerStub = (OverseerRemote) UnicastRemoteObject
+						.exportObject(this.controller, service.getPort());
+				this.registry = LocateRegistry.createRegistry(service.getPort());
+				this.registry.rebind(OverseerRemote.REMOTE_REFERENCE_NAME, overseerStub);
 				
 				this.connected = true;
 			}
