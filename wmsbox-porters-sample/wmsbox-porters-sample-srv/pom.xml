@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.wmsbox.porters.sample</groupId>
 		<artifactId>wmsbox-porters-sample</artifactId>
-		<version>1.0.1</version>
+		<version>1.0.2</version>
 	</parent>
 	<artifactId>wmsbox-porters-sample-srv</artifactId>
 	<name>wmsbox-porters-sample-srv</name>

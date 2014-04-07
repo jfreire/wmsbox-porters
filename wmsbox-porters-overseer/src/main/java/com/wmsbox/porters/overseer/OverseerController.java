@@ -111,8 +111,15 @@ public class OverseerController implements OverseerRemote, OverseerFacade {
 			if (sessionInfo != null) {
 				try {
 					if (sessionInfo.checkThatIsTheFirst()) {
-						operation = this.patron.porterInteracts(operation);
-						sessionInfo.markAsReady();
+					    try {
+					        operation = this.patron.porterInteracts(operation);
+					    } catch (RemoteException e) {
+					        LOGGER.error(e.getMessage(), e);
+					        
+					        throw e;
+					    } finally {
+					        sessionInfo.markAsReady();
+					    }
 					} else {
 						operation = sessionInfo.getCurrentOperation();
 					}

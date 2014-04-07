@@ -8,6 +8,7 @@ import com.wmsbox.porters.commons.Operation;
 public class SessionInfo {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SessionInfo.class);
+	private static final long MAX_WAIT_TIME = 10000;
 
 	private final String id;
 	private final String porter;
@@ -52,9 +53,11 @@ public class SessionInfo {
 		LOGGER.debug(this.id + " checkThatIsTheFirst " + this.processingInPatron);
 
 		if (this.processingInPatron) {
-			do {
-				wait();
-			} while (this.processingInPatron);
+			wait(MAX_WAIT_TIME);
+			
+			if (this.processingInPatron) {
+			    throw new InterruptedException("By maxTime");
+			}
 
 			return false;
 		}
